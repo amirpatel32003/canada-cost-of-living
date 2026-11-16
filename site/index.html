@@ -153,11 +153,12 @@ footer li{margin:4px 0}
     </form>
     <div class="fine">
       <label>Income <input type="range" id="f-income-range" min="20000" max="250000" step="1000" aria-label="Income slider"></label>
-      <label>Not sure? Use typical full-time pay in
-        <select id="f-industry" aria-label="Industry"></select></label>
+      <label>Compare cities on
+        <select id="f-industry" aria-label="Income used to compare cities"></select></label>
       <label>Other monthly bills $<input type="number" id="f-other" min="0" step="50" aria-label="Other monthly bills"></label>
       <button class="btn" id="share" type="button">Copy link to this result</button>
     </div>
+    <p class="note" id="basis-note"></p>
 
     <section class="card" aria-live="polite">
       <div class="verdict">
@@ -187,6 +188,7 @@ footer li{margin:4px 0}
       </div>
       <div class="chartbox"><svg class="chart" id="swarm" role="group" aria-label="Each city placed by the share of your income its rent would take"></svg><div class="tip" id="swarm-tip"></div></div>
       <p class="note" id="swarm-note"></p>
+      <div class="toolbar" style="margin:14px 0 0"><button class="btn" id="csv" type="button">Download this table (CSV)</button></div>
       <div class="tablewrap">
         <table class="rank" id="rank">
           <thead><tr>
@@ -195,7 +197,7 @@ footer li{margin:4px 0}
             <th><button data-sort="share">Share of your income</button></th>
             <th class="num hide-s"><button data-sort="need">Income needed</button></th>
             <th class="num hide-s"><button data-sort="chg">Rent, 1 year</button></th>
-            <th class="hide-s">Standing</th>
+            <th class="num hide-s"><button data-sort="left">Left a month</button></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -236,6 +238,13 @@ footer li{margin:4px 0}
         <li><b>Typical pay</b> is the median wage of full-time employees in the province, averaged over the last 12 months because the monthly figures are not seasonally adjusted, times 52 weeks.</li>
         <li><b>Not included:</b> income tax, utilities, transit, phone, child care and insurance. Use the other monthly bills box for what you know.</li>
       </ul>
+      <h2>Use the data</h2>
+      <ul>
+        <li><a href="data/cities.csv">cities.csv</a>: one row per city with the latest rents, basket cost, typical pay and rent growth against wage growth.</li>
+        <li><a href="data/rent_quarterly.csv">rent_quarterly.csv</a>: asking and paid rent for every city, home type and quarter since 2019.</li>
+        <li><a href="data/app.json">app.json</a>: everything this page uses, including prices for 110 grocery items by province.</li>
+      </ul>
+      <p>These files are rebuilt with the page. Use them freely with credit to Statistics Canada.</p>
       <h2>Where the numbers come from</h2>
       <ul id="sources"></ul>
       <p id="built"></p>
@@ -261,7 +270,7 @@ const ICON = {
 const STAND = { good: "Within the guideline", warn: "Stretched", crit: "Severe", none: "No rent published" };
 const standing = share => share == null ? "none" : share <= 0.30 ? "good" : share <= 0.50 ? "warn" : "crit";
 
-let D, S, baseBasket = {};
+let D, S, baseBasket = {}, lastRows = [];
 const cityById = id => D.cities.find(c => c.id === +id);
 const unitLabel = id => D.unit_types.find(u => u.id === +id).label;
 const NOUN = { 5: "room", 1: "studio", 2: "1-bedroom apartment", 3: "2-bedroom apartment", 4: "3-bedroom apartment", 6: "2-bedroom house", 7: "3-bedroom house" };
@@ -284,13 +293,20 @@ function basketYearAgo(prov) {
   return then ? now / then - 1 : null;
 }
 const eaters = () => S.adults + D.meta.child_factor * S.kids;
+const industryName = () => { const i = D.industries.find(z => z.id === S.industry); return !i || i.id === 1 ? "all industries" : i.name.toLowerCase(); };
+function incomeFor(city) {
+  if (!S.local) return S.income;
+  const w = D.provinces[city.prov].industries[S.industry];
+  return w && w.annual ? w.annual * S.adults : null;
+}
 function facts(city) {
-  const r = latestRent(city, S.unit);
-  const monthly = S.income / 12;
+  const r = latestRent(city, S.unit), income = incomeFor(city);
+  const monthly = income == null ? null : income / 12;
   const groceries = basketPerAdult(city.prov) * eaters();
   const rent = r ? r.v : null;
-  return { city, r, rent, monthly, groceries, share: rent == null ? null : rent / monthly,
-    left: rent == null ? null : monthly - rent - groceries - S.other, need: rent == null ? null : rent * 12 / D.meta.threshold };
+  const ok = rent != null && monthly != null;
+  return { city, r, rent, income, monthly, groceries, share: ok ? rent / monthly : null,
+    left: ok ? monthly - rent - groceries - S.other : null, need: rent == null ? null : rent * 12 / D.meta.threshold };
 }
 
 /* ---------- state and URL ---------- */
@@ -298,7 +314,8 @@ function readHash() {
   const q = new URLSearchParams(location.hash.slice(1)), n = (k, d) => q.has(k) && !isNaN(+q.get(k)) ? +q.get(k) : d;
   const toronto = D.cities.find(c => c.city === "Toronto") || D.cities[0];
   S = { city: n("c", toronto.id), unit: n("u", 2), income: n("i", 0), adults: Math.min(4, Math.max(1, n("a", 1))), kids: Math.min(6, Math.max(0, n("k", 0))),
-    other: Math.max(0, n("o", 0)), compare: n("vs", 0), view: q.get("v") === "index" ? "index" : "dollars", sort: "share", dir: "asc", industry: 1, basket: {} };
+    other: Math.max(0, n("o", 0)), compare: n("vs", 0), view: q.get("v") === "index" ? "index" : "dollars", sort: "share", dir: "asc", industry: n("ind", 0) || 1, local: n("ind", 0) > 0, basket: {} };
+  if (!D.industries.some(z => z.id === S.industry)) { S.industry = 1; S.local = false; }
   if (!cityById(S.city)) S.city = toronto.id;
   if (!D.unit_types.some(u => u.id === S.unit)) S.unit = 2;
   if (!cityById(S.compare) || S.compare === S.city) S.compare = 0;
@@ -311,6 +328,7 @@ function readHash() {
 function writeHash() {
   const q = new URLSearchParams({ c: S.city, u: S.unit, i: S.income, a: S.adults, k: S.kids });
   if (S.other) q.set("o", S.other);
+  if (S.local) q.set("ind", S.industry);
   if (S.compare) q.set("vs", S.compare);
   if (S.view === "index") q.set("v", "index");
   history.replaceState(null, "", "#" + q.toString());
@@ -328,14 +346,17 @@ function fillControls() {
     .map(p => `<optgroup label="${esc(D.provinces[p].name)}">${byProv[p].map(c => `<option value="${c.id}">${esc(c.city)}</option>`).join("")}</optgroup>`).join("");
   $("#f-city").innerHTML = groups;
   $("#f-compare").innerHTML = `<option value="0">no other city</option>` + groups;
-  $("#f-industry").innerHTML = `<option value="">choose an industry</option>` + D.industries.map(i => `<option value="${i.id}">${esc(i.id === 1 ? "All industries" : i.name)}</option>`).join("");
+  $("#f-industry").innerHTML = `<option value="">the income I entered</option><optgroup label="Typical full-time pay in each city, by industry">` + D.industries.map(i => `<option value="${i.id}">${esc(i.id === 1 ? "All industries" : i.name)}</option>`).join("") + "</optgroup>";
   $("#f-add").innerHTML = `<option value="">choose an item</option>` + D.products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("");
 }
 function syncControls() {
   $("#f-adults").value = S.adults; $("#f-kids").value = S.kids; $("#f-unit").value = S.unit; $("#f-city").value = S.city;
   $("#f-compare").value = S.compare; $("#f-other").value = S.other || "";
-  if (document.activeElement !== $("#f-income")) $("#f-income").value = S.income.toLocaleString("en-CA");
-  $("#f-income-range").value = Math.min(250000, S.income);
+  const shown = incomeFor(cityById(S.city)) || S.income;
+  if (document.activeElement !== $("#f-income")) $("#f-income").value = Math.round(shown).toLocaleString("en-CA");
+  $("#f-income-range").value = Math.min(250000, shown);
+  $("#f-industry").value = S.local ? S.industry : "";
+  $("#basis-note").textContent = S.local ? `Each city is using the typical full-time pay for ${industryName()} in its own province, for ${S.adults} earner${S.adults > 1 ? "s" : ""}. Type an income to go back to your own.` : "";
   document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === S.view));
 }
 function bind() {
@@ -346,17 +367,16 @@ function bind() {
   $("#f-city").onchange = e => set("city", +e.target.value);
   $("#f-compare").onchange = e => set("compare", +e.target.value === S.city ? 0 : +e.target.value);
   $("#f-other").oninput = e => set("other", Math.max(0, +e.target.value || 0));
-  $("#f-income").oninput = e => { const v = +e.target.value.replace(/[^0-9]/g, ""); if (v >= 5000) set("income", Math.min(2000000, v)); };
+  $("#f-income").oninput = e => { const v = +e.target.value.replace(/[^0-9]/g, ""); if (v >= 5000) { S.local = false; set("income", Math.min(2000000, v)); } };
   $("#f-income").onblur = () => syncControls();
-  $("#f-income-range").oninput = e => set("income", +e.target.value);
+  $("#f-income-range").oninput = e => { S.local = false; set("income", +e.target.value); };
   $("#f-industry").onchange = e => {
-    if (!e.target.value) return;
-    const w = D.provinces[cityById(S.city).prov].industries[e.target.value];
-    if (w) { S.industry = +e.target.value; set("income", w.annual * S.adults); }
+    if (!e.target.value) { S.local = false; render(); return; }
+    S.industry = +e.target.value; S.local = true; render();
   };
   document.querySelectorAll(".seg button").forEach(b => b.onclick = () => set("view", b.dataset.view));
   document.querySelectorAll("#rank th button").forEach(b => b.onclick = () => {
-    if (S.sort === b.dataset.sort) S.dir = S.dir === "asc" ? "desc" : "asc"; else { S.sort = b.dataset.sort; S.dir = b.dataset.sort === "chg" ? "desc" : "asc"; }
+    if (S.sort === b.dataset.sort) S.dir = S.dir === "asc" ? "desc" : "asc"; else { S.sort = b.dataset.sort; S.dir = b.dataset.sort === "chg" || b.dataset.sort === "left" ? "desc" : "asc"; }
     renderRank();
   });
   $("#share").onclick = async e => {
@@ -364,6 +384,15 @@ function bind() {
     try { await navigator.clipboard.writeText(location.href); e.target.textContent = "Link copied"; }
     catch (err) { e.target.textContent = "Copy the address bar"; }
     setTimeout(() => e.target.textContent = "Copy link to this result", 1800);
+  };
+  $("#csv").onclick = () => {
+    const head = ["city", "province", "home_type", "rent_quarter", "asking_rent", "annual_income_used", "rent_share_of_income", "groceries_per_month", "left_per_month_before_tax", "income_needed_for_30pct", "rent_change_1y", "standing"];
+    const cell = v => v == null ? "" : /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v;
+    const lines = lastRows.map(r => [r.city.city, r.city.prov, unitNoun(S.unit), r.r ? D.quarters[r.r.qi] : "", r.rent, r.income == null ? "" : Math.round(r.income), r.share == null ? "" : r.share.toFixed(4),
+      r.groceries.toFixed(2), r.left == null ? "" : r.left.toFixed(2), r.need == null ? "" : Math.round(r.need), r.chg == null ? "" : r.chg.toFixed(4), STAND[standing(r.share)]].map(cell).join(","));
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([head.join(",") + "\n" + lines.join("\n") + "\n"], { type: "text/csv" }));
+    a.download = "canada-cost-of-living.csv"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
   $("#f-add").onchange = e => { if (e.target.value) { S.basket[e.target.value] = S.basket[e.target.value] || 1; e.target.value = ""; saveBasket(); render(); } };
   $("#basket-reset").onclick = () => { S.basket = { ...baseBasket }; saveBasket(); render(); };
@@ -380,15 +409,21 @@ function bind() {
 function renderVerdict() {
   const c = cityById(S.city), f = facts(c), unit = unitNoun(S.unit), st = standing(f.share);
   const el = $("#v-status"); el.className = "status " + st; el.innerHTML = ICON[st] + STAND[st];
-  if (f.rent == null) {
+  if (f.income == null) {
+    $("#v-big").textContent = `No typical pay is published for ${industryName()} in ${D.provinces[c.prov].name}.`;
+    $("#v-facts").innerHTML = `<li>Pick another industry, or type your own income.</li>`;
+  } else if (f.rent == null) {
     $("#v-big").textContent = `Statistics Canada does not publish a ${unit} rent for ${c.city}.`;
     $("#v-facts").innerHTML = `<li>Try another home type. Smaller markets often have too few listings for a reliable average.</li>`;
   } else {
-    $("#v-big").textContent = `A ${unit} in ${c.city} would take ${pct(f.share)} of your income.`;
-    const gap = f.need - S.income, prov = D.provinces[c.prov], li = [];
+    $("#v-big").textContent = `A ${unit} in ${c.city} would take ${pct(f.share)} of ${S.local ? "typical pay there" : "your income"}.`;
+    const gap = f.need - f.income, prov = D.provinces[c.prov], li = [];
     li.push(gap > 0
-      ? `To keep rent at 30%, the household would need <b>${money(f.need)}</b> a year, which is <b>${money(gap)}</b> more than you entered.`
+      ? `To keep rent at 30%, the household would need <b>${money(f.need)}</b> a year, which is <b>${money(gap)}</b> more than ${S.local ? "this pay" : "you entered"}.`
       : `You clear the 30% guideline with <b>${money(-gap)}</b> a year to spare. It takes <b>${money(f.need)}</b>.`);
+    const budget = f.income * D.meta.threshold / 12;
+    const fits = D.unit_types.filter(u => { const z = latestRent(c, u.id); return z && z.v <= budget; }).map(u => unitNoun(u.id));
+    li.push(`30% of this income is <b>${money(budget)}</b> a month. In ${esc(c.city)} that ${fits.length ? "covers the average " + fits.join(", ") : "is below every average rent published"}.`);
     const hourly = prov.industries["1"] ? prov.industries["1"].hourly : null;
     if (hourly) li.push(`At the typical full-time wage in ${esc(prov.name)} (<b>${money2(hourly)}</b> an hour), this rent is <b>${Math.round(f.rent / hourly)} hours</b> of work a month.`);
     if (c.paid[S.unit]) li.push(`Tenants already renting a ${unit} here pay <b>${money(c.paid[S.unit])}</b> on average. New listings ask <b>${money(f.rent - c.paid[S.unit])}</b> more.`);
@@ -403,7 +438,7 @@ function renderVerdict() {
   $("#r-title").textContent = cmp ? "Your month, side by side" : "Your month in " + c.city;
   $("#receipt").innerHTML =
     (cmp ? `<thead><tr><th></th>${cols.map(x => `<td>${esc(x.city.city)}</td>`).join("")}</tr></thead>` : "") + "<tbody>" +
-    row("Income before tax", x => x.monthly) +
+    row("Income before tax", x => x.monthly == null ? "n/a" : x.monthly) +
     row(`Rent`, x => x.rent == null ? "n/a" : -x.rent) +
     row(`Groceries for ${S.adults + S.kids}`, x => -x.groceries) +
     (S.other ? row("Other bills", () => -S.other) : "") +
@@ -411,7 +446,9 @@ function renderVerdict() {
   let note = "Income tax is not taken off. See the notes at the bottom for what is left out.";
   if (cmp && f.left != null && cmp.left != null) {
     const d = cmp.left - f.left;
-    note = `${cmp.city.city} leaves you ${money(Math.abs(d))} ${d >= 0 ? "more" : "less"} a month than ${c.city}, or ${money(Math.abs(d) * 12)} a year, on the same income. ` + note;
+    const match = (f.left + cmp.rent + cmp.groceries + S.other) * 12;
+    note = `${cmp.city.city} leaves you ${money(Math.abs(d))} ${d >= 0 ? "more" : "less"} a month than ${c.city}, or ${money(Math.abs(d) * 12)} a year` +
+      (S.local ? `, on typical ${industryName()} pay in each place. ` : `, on the same income. To have as much left in ${cmp.city.city} as in ${c.city}, you would need ${money(match)} a year. `) + note;
   }
   $("#r-note").textContent = note;
 }
@@ -444,14 +481,16 @@ function renderSwarm() {
   });
   [[S.city, "var(--ink)"], [S.compare, "var(--s2)"]].forEach(([id, col]) => {
     const p = placed.find(q => q.r.city.id === id); if (!p) return;
-    const right = p.cx > W - 170 || (narrow && p.cx > W / 2);
+    const other = placed.find(q => q.r.city.id === (id === S.city ? S.compare : S.city));
+    const clash = other && Math.abs(other.cy - p.cy) < 20 && Math.abs(other.cx - p.cx) < 200;
+    const right = clash ? p.cx < other.cx : (p.cx > W - 170 || (narrow && p.cx > W / 2));
     svg += `<text x="${p.cx + (right ? -15 : 15)}" y="${p.cy + 5}" text-anchor="${right ? "end" : "start"}" font-size="15" font-weight="700" fill="var(--ink)" stroke="var(--surface)" stroke-width="4" paint-order="stroke" pointer-events="none">${esc(p.r.city.city)} ${pct(p.r.share)}</text>`;
   });
   el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.innerHTML = svg;
   const tip = $("#swarm-tip");
   const show = t => {
     const r = rows.find(q => q.city.id === +t.dataset.id), box = el.getBoundingClientRect(), k = box.width / W;
-    tip.innerHTML = `<b>${esc(r.city.city)}</b>, ${r.city.prov}<br>Rent ${money(r.rent)} · ${pct(r.share, 1)} of income<br>Needs ${money(r.need)} a year`;
+    tip.innerHTML = `<b>${esc(r.city.city)}</b>, ${r.city.prov}<br>Rent ${money(r.rent)} · ${pct(r.share, 1)} of income<br>${money(r.left)} left a month`;
     tip.style.left = Math.min(box.width - 90, Math.max(90, +t.getAttribute("cx") * k)) + "px"; tip.style.top = (+t.getAttribute("cy") * k) + "px"; tip.classList.add("on");
   };
   el.onmousemove = e => e.target.dataset.id ? show(e.target) : tip.classList.remove("on");
@@ -462,14 +501,14 @@ function renderSwarm() {
   el.onclick = e => pick(e.target);
   el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(e.target); } };
   const ok = have.filter(r => r.share <= .3).length, unit = unitNoun(S.unit);
-  $("#swarm-sub").textContent = `Each dot is a city, placed by how much of ${money(S.income)} a year the rent on a ${unit} would take. ${ok} of ${have.length} cities come in at 30% or less. Click a dot or a row to switch city.`;
+  $("#swarm-sub").textContent = `Each dot is a city, placed by how much of ${S.local ? "typical full-time " + industryName() + " pay there" : money(S.income) + " a year"} the rent on a ${unit} would take. ${ok} of ${have.length} cities come in at 30% or less. Click a dot or a row to switch city.`;
   const missing = rows.filter(r => r.share == null).map(r => r.city.city);
   $("#swarm-note").textContent = missing.length ? `No rent is published for a ${unit} in ${missing.join(", ")}.` : "";
 }
 
 function renderRank() {
   const rows = D.cities.map(c => { const f = facts(c), s = c.rent[S.unit], ago = f.r && f.r.qi >= 4 ? s[f.r.qi - 4] : null; return { ...f, chg: f.rent != null && ago ? f.rent / ago - 1 : null }; });
-  const key = { city: r => r.city.city, rent: r => r.rent, share: r => r.share, need: r => r.need, chg: r => r.chg }[S.sort], dir = S.dir === "asc" ? 1 : -1;
+  const key = { city: r => r.city.city, rent: r => r.rent, share: r => r.share, need: r => r.need, chg: r => r.chg, left: r => r.left }[S.sort], dir = S.dir === "asc" ? 1 : -1;
   rows.sort((a, b) => { const A = key(a), B = key(b); if (A == null) return 1; if (B == null) return -1; return (typeof A === "string" ? A.localeCompare(B) : A - B) * dir; });
   document.querySelectorAll("#rank th button").forEach(b => { if (b.dataset.sort === S.sort) { b.setAttribute("aria-sort", S.dir === "asc" ? "ascending" : "descending"); b.dataset.dir = S.dir; } else { b.removeAttribute("aria-sort"); delete b.dataset.dir; } });
   $("#rank tbody").innerHTML = rows.map(r => {
@@ -480,8 +519,9 @@ function renderRank() {
       <td><div style="display:flex;gap:10px;align-items:center"><div class="bar" aria-hidden="true"><b style="width:${w}%"></b><u style="left:30%"></u></div><span>${pct(r.share)}</span></div></td>
       <td class="num hide-s">${money(r.need)}</td>
       <td class="num hide-s">${signed(r.chg)}</td>
-      <td class="hide-s"><span class="status ${st}" style="padding:2px 9px 2px 6px;font-size:.82rem">${ICON[st]}${STAND[st]}</span></td></tr>`;
+      <td class="num hide-s">${money(r.left)}</td></tr>`;
   }).join("");
+  lastRows = rows;
   const go = t => { const tr = t.closest("tr[data-id]"); if (tr) { S.city = +tr.dataset.id; if (S.compare === S.city) S.compare = 0; render(); } };
   $("#rank tbody").onclick = e => go(e.target);
   $("#rank tbody").onkeydown = e => { if (e.key === "Enter") go(e.target); };

@@ -158,4 +158,30 @@ def export(out_path: Path | None = None, warehouse: Path = WAREHOUSE_PATH, manif
         con.close()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    export_csvs(out_path.parent, warehouse)
     return out_path
+
+
+def export_csvs(out_dir: Path, warehouse: Path = WAREHOUSE_PATH) -> list[Path]:
+    """Plain CSV copies of the two marts people are most likely to reuse."""
+    queries = {
+        "cities.csv": "select * from mart_city_affordability order by city",
+        "rent_quarterly.csv": """
+            select c.city, c.province_code, u.short_label as home_type, r.quarter_start,
+                   r.asking_rent, r.paid_rent, r.asking_use_with_caution
+            from fct_rent_quarterly r
+            join dim_city c using (city_id)
+            join unit_types u using (unit_type_id)
+            order by c.city, u.sort_order, r.quarter_start
+        """,
+    }
+    con = duckdb.connect(str(warehouse), read_only=True)
+    written = []
+    try:
+        for name, sql in queries.items():
+            path = out_dir / name
+            con.execute(f"copy ({sql}) to '{path.as_posix()}' (header, delimiter ',')")
+            written.append(path)
+    finally:
+        con.close()
+    return written

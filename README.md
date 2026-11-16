@@ -4,6 +4,8 @@
 
 Type in your income and household, pick one of 40 Canadian cities, and the page works out what rent and groceries take out of your month, which cities fit the 30% guideline at your income, and whether pay has kept up with rent since 2019.
 
+You can also compare cities on the typical full-time pay for your industry in each province, see what is left after rent and groceries, work out the income you would need to move without losing ground, and download the table or the underlying data as CSV.
+
 Behind it is a pipeline that checks Statistics Canada every day, reloads a table only when it has a new release, rebuilds the models in dbt, runs 47 data tests, and publishes the result.
 
 [![CI](https://github.com/amirpatel32003/canada-cost-of-living/actions/workflows/ci.yml/badge.svg)](https://github.com/amirpatel32003/canada-cost-of-living/actions/workflows/ci.yml)
@@ -29,7 +31,7 @@ Rent reports give one number per city. That number does not tell a household of 
 |---|---|---|
 | Ingest | Python, DuckDB | Asks the Statistics Canada Web Data Service for each table's release time. Downloads the full table only when the release changed, and lands it as Parquet with every column kept as text. |
 | Model | dbt (DuckDB) | Staging views type the data and turn unpublished values into nulls. Marts join rent (city, quarterly) to food prices and wages (province, monthly). |
-| Test | dbt tests, pytest | 47 data tests on every build, including contract tests against Statistics Canada's own metadata. 13 pytest cases run the whole pipeline on offline fixtures. |
+| Test | dbt tests, pytest | 47 data tests on every build, including contract tests against Statistics Canada's own metadata. 14 pytest cases run the whole pipeline on offline fixtures. |
 | Orchestrate | Airflow, GitHub Actions | The Airflow DAG is executed end to end in CI on every push. The daily production run uses GitHub Actions because it is free to host. Both call the same commands. |
 | Serve | Static page | One JSON file and one HTML page with no framework. Every figure on the page comes from a dbt mart. |
 
@@ -85,6 +87,14 @@ python -m pytest -q tests
 To run the DAG, point Airflow's `dags_folder` at `dags/` and set `COL_PYTHON` to the Python that has the requirements installed. CI does exactly this with `airflow dags test`.
 
 The warehouse is DuckDB so anyone can run this without an account. `dbt/profiles.yml` also has a BigQuery target. I have not run the project on BigQuery yet, so treat that target as a starting point.
+
+## Open data files
+
+The publish job writes three files next to the page, rebuilt on every run:
+
+- [`cities.csv`](https://amirpatel32003.github.io/canada-cost-of-living/data/cities.csv): one row per city with the latest rents, basket cost, typical pay and rent growth against wage growth.
+- [`rent_quarterly.csv`](https://amirpatel32003.github.io/canada-cost-of-living/data/rent_quarterly.csv): asking and paid rent for every city, home type and quarter since 2019.
+- [`app.json`](https://amirpatel32003.github.io/canada-cost-of-living/data/app.json): everything the page uses, including prices for 110 grocery items by province.
 
 ## Limits
 

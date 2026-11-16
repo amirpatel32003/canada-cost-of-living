@@ -78,3 +78,15 @@ def test_series_are_aligned_to_the_quarter_list(built):
     n = len(app["quarters"])
     assert all(len(s) == n for c in app["cities"] for s in c["rent"].values())
     assert all(len(p["wage_q"]) == n for p in app["provinces"].values())
+
+
+def test_csv_exports_match_the_marts(built):
+    data, app = built
+    import csv
+
+    cities = list(csv.DictReader(open(data / "cities.csv", encoding="utf-8")))
+    assert len(cities) == len(app["cities"])
+    assert {"city", "rent_1bed", "basket_per_adult", "median_annual_wage"} <= set(cities[0])
+    rents = list(csv.DictReader(open(data / "rent_quarterly.csv", encoding="utf-8")))
+    toronto = [r for r in rents if r["city"] == "Toronto" and r["home_type"] == "1 bedroom"]
+    assert len(toronto) == len(app["quarters"])
