@@ -4,7 +4,7 @@
 
 Type in your income and household, pick one of 40 Canadian cities, and the page works out what rent and groceries take out of your month, which cities fit the 30% guideline at your income, and whether pay has kept up with rent since 2019.
 
-You can also compare cities on the typical full-time pay for your industry in each province, see what is left after rent and groceries, work out the income you would need to move without losing ground, and download the table or the underlying data as CSV.
+You can also compare cities on the typical full-time pay for your industry in each province, see an estimate of take-home pay and what is left after tax, rent and groceries, switch between asking rent and the rent sitting tenants pay, work out the income you would need to move without losing ground, and download the table or the underlying data as CSV.
 
 Behind it is a pipeline that checks Statistics Canada every day, reloads a table only when it has a new release, rebuilds the models in dbt, runs 47 data tests, and publishes the result.
 
@@ -31,7 +31,7 @@ Rent reports give one number per city. That number does not tell a household of 
 |---|---|---|
 | Ingest | Python, DuckDB | Asks the Statistics Canada Web Data Service for each table's release time. Downloads the full table only when the release changed, and lands it as Parquet with every column kept as text. |
 | Model | dbt (DuckDB) | Staging views type the data and turn unpublished values into nulls. Marts join rent (city, quarterly) to food prices and wages (province, monthly). |
-| Test | dbt tests, pytest | 47 data tests on every build, including contract tests against Statistics Canada's own metadata. 14 pytest cases run the whole pipeline on offline fixtures. |
+| Test | dbt tests, pytest | 47 data tests on every build, including contract tests against Statistics Canada's own metadata. 29 pytest cases run the whole pipeline on offline fixtures. |
 | Orchestrate | Airflow, GitHub Actions | The Airflow DAG is executed end to end in CI on every push. The daily production run uses GitHub Actions because it is free to host. Both call the same commands. |
 | Serve | Static page | One JSON file and one HTML page with no framework. Every figure on the page comes from a dbt mart. |
 
@@ -66,6 +66,8 @@ Statistics Canada WDS
 **Wages use a trailing 12-month average.** The source is not seasonally adjusted, so a single month would move the result for reasons that have nothing to do with pay.
 
 **Incremental by release, not by date.** Statistics Canada revises history, so appending new rows is wrong. A table is reloaded in full when its release time changes and skipped otherwise. On most days nothing is downloaded.
+
+**Take-home pay is tested against published figures.** The tax estimate covers federal and provincial income tax, CPP or QPP, EI and QPIP for 2026. Its parameters sit in one file, `pipeline/tax_2026.json`, which both the Python module and the page read. The tests check it against an independently published income tax figure at $75,000 for every province (to the dollar in nine provinces, within $10 in Quebec) and against the statutory CPP, EI, QPP and QPIP maximums. A separate check confirmed the JavaScript and Python versions return identical results across 110 income and province combinations.
 
 **Airflow and dbt in separate environments.** The DAG shells out to the project's Python, so neither tool pins the other's dependencies.
 
@@ -103,7 +105,9 @@ The publish job writes three files next to the page, rebuilt on every run:
 - Rent is the average asking rent of online listings in a metro area. It says nothing about a specific neighbourhood, and people who have not moved in years pay less.
 - Food prices and wages are provincial. A city inside a province gets that province's figures.
 - The starting grocery basket is my own list of staples, not an official one. It is in `dbt/seeds/basket_items.csv` and anyone can change the quantities on the page.
-- Income tax, utilities, transit and child care are left out. The page says so next to every total.
+- The take-home figure is an estimate for employees with basic credits only. It leaves out RRSP deductions, benefits and provincial low-income tax reductions, so it overstates tax at low incomes. Tax parameters are for 2026 and have to be updated by hand each year.
+- Paid rent is published for fewer cities and home types than asking rent.
+- Utilities, transit and child care are left out. The page says so in its notes.
 - The rent series is labelled experimental by Statistics Canada and starts in 2019.
 
 ## Data

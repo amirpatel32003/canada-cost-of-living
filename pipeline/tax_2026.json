@@ -1,0 +1,33 @@
+{
+  "year": 2026,
+  "sources": [
+    "Federal brackets, basic personal amount and Canada employment amount: Canada Revenue Agency, 2026",
+    "Provincial brackets and Ontario surtax: KPMG, Federal and Provincial/Territorial Income Tax Rates and Brackets for 2026 (current to June 30, 2026)",
+    "CPP, CPP2, QPP, EI and QPIP rates and maximums: Canada Revenue Agency, Retraite Quebec and the Canada Employment Insurance Commission, 2026"
+  ],
+  "federal": {
+    "brackets": [[58523, 0.14], [117045, 0.205], [181440, 0.26], [258482, 0.29], [null, 0.33]],
+    "bpa_max": 16452, "bpa_min": 14829, "bpa_phase_start": 181440, "bpa_phase_end": 258482,
+    "employment_amount": 1501, "quebec_abatement": 0.165
+  },
+  "payroll": {
+    "cpp_exemption": 3500, "ympe": 74600, "yampe": 85000,
+    "cpp_rate": 0.0595, "qpp_rate": 0.063, "enhanced_rate": 0.01, "cpp2_rate": 0.04,
+    "ei_max_earnings": 68900, "ei_rate": 0.0163, "ei_rate_quebec": 0.013,
+    "qpip_rate": 0.0043, "qpip_max_earnings": 103000
+  },
+  "provinces": {
+    "BC": {"bpa": 13216, "brackets": [[50363, 0.056], [100728, 0.077], [115648, 0.105], [140430, 0.1229], [190405, 0.147], [265545, 0.168], [null, 0.205]]},
+    "AB": {"bpa": 22769, "brackets": [[61200, 0.08], [154259, 0.10], [185111, 0.12], [246813, 0.13], [370220, 0.14], [null, 0.15]]},
+    "SK": {"bpa": 20381, "brackets": [[54532, 0.105], [155805, 0.125], [null, 0.145]]},
+    "MB": {"bpa": 15780, "bpa_phase_start": 200000, "bpa_phase_end": 400000, "brackets": [[47000, 0.108], [100000, 0.1275], [null, 0.174]]},
+    "ON": {"bpa": 12989, "surtax": [[5818, 0.20], [7446, 0.36]], "health_premium": true,
+           "brackets": [[53891, 0.0505], [107785, 0.0915], [150000, 0.1116], [220000, 0.1216], [null, 0.1316]]},
+    "QC": {"bpa": 18952, "worker_deduction_rate": 0.06, "worker_deduction_max": 1420,
+           "brackets": [[54345, 0.14], [108680, 0.19], [132245, 0.24], [null, 0.2575]]},
+    "NB": {"bpa": 13664, "brackets": [[52333, 0.094], [104666, 0.14], [193861, 0.16], [null, 0.195]]},
+    "NS": {"bpa": 11932, "brackets": [[30995, 0.0879], [61991, 0.1495], [97417, 0.1667], [157124, 0.175], [null, 0.21]]},
+    "PE": {"bpa": 15000, "brackets": [[33928, 0.095], [65820, 0.1347], [106890, 0.166], [142250, 0.1762], [200000, 0.19], [null, 0.20]]},
+    "NL": {"bpa": 13094, "brackets": [[44678, 0.087], [89354, 0.145], [159528, 0.158], [223340, 0.178], [285319, 0.198], [570638, 0.208], [1141275, 0.213], [null, 0.218]]}
+  }
+}

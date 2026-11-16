@@ -13,6 +13,7 @@ import duckdb
 
 from .config import MANIFEST_PATH, SITE_DIR, WAREHOUSE_PATH
 from .ingest import load_manifest
+from .tax import params as tax_params
 
 
 def _q(d) -> str:
@@ -146,6 +147,7 @@ def build_payload(con: duckdb.DuckDBPyConnection, manifest: dict) -> dict:
         "provinces": provinces,
         "products": products,
         "industries": industries,
+        "tax": tax_params(),
     }
 
 
