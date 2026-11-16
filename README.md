@@ -2,12 +2,22 @@
 
 **Live tool: https://amirpatel32003.github.io/canada-cost-of-living/**
 
-Type in your income and household, pick one of 42 Canadian cities, and the page works out what rent and groceries take out of your month, which cities fit the 30% guideline at your income, and whether pay has kept up with rent since 2019.
+Type in your income and household, pick one of 40 Canadian cities, and the page works out what rent and groceries take out of your month, which cities fit the 30% guideline at your income, and whether pay has kept up with rent since 2019.
 
 Behind it is a pipeline that checks Statistics Canada every day, reloads a table only when it has a new release, rebuilds the models in dbt, runs 47 data tests, and publishes the result.
 
 [![CI](https://github.com/amirpatel32003/canada-cost-of-living/actions/workflows/ci.yml/badge.svg)](https://github.com/amirpatel32003/canada-cost-of-living/actions/workflows/ci.yml)
 [![Refresh data and publish](https://github.com/amirpatel32003/canada-cost-of-living/actions/workflows/refresh.yml/badge.svg)](https://github.com/amirpatel32003/canada-cost-of-living/actions/workflows/refresh.yml)
+
+## What the data says (November 2026 run)
+
+- In 34 of 40 cities, asking rent for a one-bedroom has grown faster than the typical full-time wage in the province since 2019. Toronto, Vancouver, Victoria, Ottawa, Hamilton and Chilliwack are the six where pay grew faster.
+- Toronto's one-bedroom asking rent is 5.6% above its 2019 average while Ontario's typical full-time wage is up 32%. In Trois-Rivières the same rent has doubled, from about $480 to $970.
+- On the typical full-time wage, a one-bedroom takes more than 30% of income in 8 of 40 cities. Vancouver is highest at 37.5% and Trois-Rivières lowest at 17.1%.
+- In Toronto, tenants already in a one-bedroom pay $1,840 on average. New listings ask $2,090.
+- The pipeline loads 13.6 million rows, almost all of them from the wages table.
+
+These figures come from the live run and will move as Statistics Canada publishes new quarters.
 
 ## The question
 
@@ -77,6 +87,8 @@ To run the DAG, point Airflow's `dags_folder` at `dags/` and set `COL_PYTHON` to
 The warehouse is DuckDB so anyone can run this without an account. `dbt/profiles.yml` also has a BigQuery target. I have not run the project on BigQuery yet, so treat that target as a starting point.
 
 ## Limits
+
+- The rent table lists 42 metro areas. Saguenay and Drummondville have no published one-bedroom rent, so the tool shows 40.
 
 - Rent is the average asking rent of online listings in a metro area. It says nothing about a specific neighbourhood, and people who have not moved in years pay less.
 - Food prices and wages are provincial. A city inside a province gets that province's figures.

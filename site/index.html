@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Can I afford to live there? Rent, groceries and wages in 42 Canadian cities</title>
+<title>Can I afford to live there? Rent, groceries and wages in Canadian cities</title>
 <meta name="description" content="Enter your income and household, pick a city, and see what rent and groceries take out of it. Built on Statistics Canada rent, food price and wage data, refreshed automatically.">
 <meta property="og:title" content="Can I afford to live there?">
-<meta property="og:description" content="Rent, groceries and wages in 42 Canadian cities, from Statistics Canada data.">
+<meta property="og:description" content="Rent, groceries and wages in 40 Canadian cities, from Statistics Canada data.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M7 17l9-8 9 8v8H7z%27 fill=%27%23fff%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,7 +52,7 @@ section.card{background:var(--surface);border:1px solid var(--line);border-radiu
 .sentence select{cursor:pointer}
 .sentence select:focus-visible,.sentence input:focus-visible,button:focus-visible,[tabindex]:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:3px}
 .fine{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;color:var(--ink-2);font-size:.95rem;margin-top:10px}
-.fine label{display:flex;gap:8px;align-items:center}
+.fine label{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
 .fine select,.fine input[type=number]{font:inherit;font-size:.95rem;color:var(--ink);background:var(--surface);border:1px solid var(--axis);border-radius:8px;padding:6px 8px;max-width:270px}
 .fine input[type=number]{width:7ch}
 input[type=range]{width:min(420px,100%);accent-color:var(--s1)}
@@ -139,7 +139,7 @@ footer li{margin:4px 0}
 <div class="wrap">
   <header class="top">
     <h1>Can I afford to live there?</h1>
-    <p class="lede">Rent, groceries and wages for 42 Canadian cities, from Statistics Canada. Fill in the sentence and everything on the page recalculates for you.</p>
+    <p class="lede">Rent, groceries and wages for <span id="ncities">40</span> Canadian cities, from Statistics Canada. Fill in the sentence and everything on the page recalculates for you.</p>
   </header>
 
   <div id="loading" role="status">Loading the latest numbers…</div>
@@ -264,6 +264,8 @@ const standing = share => share == null ? "none" : share <= 0.30 ? "good" : shar
 let D, S, baseBasket = {};
 const cityById = id => D.cities.find(c => c.id === +id);
 const unitLabel = id => D.unit_types.find(u => u.id === +id).label;
+const NOUN = { 5: "room", 1: "studio", 2: "1-bedroom apartment", 3: "2-bedroom apartment", 4: "3-bedroom apartment", 6: "2-bedroom house", 7: "3-bedroom house" };
+const unitNoun = id => NOUN[id] || unitLabel(id).toLowerCase();
 
 function latestRent(city, unit) {
   const s = city.rent[unit];
@@ -319,7 +321,7 @@ function saveBasket() { try { localStorage.setItem("col-basket", JSON.stringify(
 function fillControls() {
   $("#f-adults").innerHTML = [1, 2, 3, 4].map(n => `<option value="${n}">${n} adult${n > 1 ? "s" : ""}</option>`).join("");
   $("#f-kids").innerHTML = [0, 1, 2, 3, 4, 5, 6].map(n => `<option value="${n}">${n === 0 ? "no kids" : n + " kid" + (n > 1 ? "s" : "")}</option>`).join("");
-  $("#f-unit").innerHTML = D.unit_types.map(u => `<option value="${u.id}">${esc(u.label.toLowerCase())}</option>`).join("");
+  $("#f-unit").innerHTML = D.unit_types.map(u => `<option value="${u.id}">${esc(unitNoun(u.id))}</option>`).join("");
   const byProv = {};
   D.cities.forEach(c => (byProv[c.prov] = byProv[c.prov] || []).push(c));
   const groups = Object.keys(byProv).sort((a, b) => D.provinces[a].name.localeCompare(D.provinces[b].name))
@@ -376,7 +378,7 @@ function bind() {
 
 /* ---------- verdict ---------- */
 function renderVerdict() {
-  const c = cityById(S.city), f = facts(c), unit = unitLabel(S.unit).toLowerCase(), st = standing(f.share);
+  const c = cityById(S.city), f = facts(c), unit = unitNoun(S.unit), st = standing(f.share);
   const el = $("#v-status"); el.className = "status " + st; el.innerHTML = ICON[st] + STAND[st];
   if (f.rent == null) {
     $("#v-big").textContent = `Statistics Canada does not publish a ${unit} rent for ${c.city}.`;
@@ -389,7 +391,7 @@ function renderVerdict() {
       : `You clear the 30% guideline with <b>${money(-gap)}</b> a year to spare. It takes <b>${money(f.need)}</b>.`);
     const hourly = prov.industries["1"] ? prov.industries["1"].hourly : null;
     if (hourly) li.push(`At the typical full-time wage in ${esc(prov.name)} (<b>${money2(hourly)}</b> an hour), this rent is <b>${Math.round(f.rent / hourly)} hours</b> of work a month.`);
-    if (c.paid[S.unit]) li.push(`Tenants already in a ${unit} here pay <b>${money(c.paid[S.unit])}</b> on average. New listings ask <b>${money(f.rent - c.paid[S.unit])}</b> more.`);
+    if (c.paid[S.unit]) li.push(`Tenants already renting a ${unit} here pay <b>${money(c.paid[S.unit])}</b> on average. New listings ask <b>${money(f.rent - c.paid[S.unit])}</b> more.`);
     const s = c.rent[S.unit], ago = f.r.qi >= 4 ? s[f.r.qi - 4] : null;
     if (ago) li.push(`Asking rent is <b>${signed(f.rent / ago - 1)}</b> against a year earlier (${money(ago)}).`);
     if (c.caution.includes(S.unit)) li.push(`Statistics Canada flags this estimate "use with caution" because it rests on few listings.`);
@@ -402,7 +404,7 @@ function renderVerdict() {
   $("#receipt").innerHTML =
     (cmp ? `<thead><tr><th></th>${cols.map(x => `<td>${esc(x.city.city)}</td>`).join("")}</tr></thead>` : "") + "<tbody>" +
     row("Income before tax", x => x.monthly) +
-    row(`Rent, ${unit}`, x => x.rent == null ? "n/a" : -x.rent) +
+    row(`Rent`, x => x.rent == null ? "n/a" : -x.rent) +
     row(`Groceries for ${S.adults + S.kids}`, x => -x.groceries) +
     (S.other ? row("Other bills", () => -S.other) : "") +
     row("Left before tax", x => x.left == null ? "n/a" : x.left, "total") + "</tbody>";
@@ -416,7 +418,7 @@ function renderVerdict() {
 
 /* ---------- swarm: every city by share of income ---------- */
 function renderSwarm() {
-  const W = 1000, padL = 16, padR = 16, R = 9, top = 34;
+  const el = $("#swarm"), W = Math.max(320, Math.round(el.parentNode.clientWidth) || 1000), narrow = W < 640, padL = 14, padR = 14, R = narrow ? 7 : 9, top = 34;
   const rows = D.cities.map(c => facts(c));
   const have = rows.filter(r => r.share != null).sort((a, b) => a.share - b.share);
   const maxShare = Math.min(1, Math.max(0.62, ...have.map(r => r.share)) + 0.04);
@@ -430,10 +432,10 @@ function renderSwarm() {
   const levels = Math.max(...placed.map(p => p.level), 0) + 1, plotH = levels * (R * 2 + 2) + 10, base = top + plotH, H = base + 34;
   const zone = (a, b, wash, label) => a >= maxShare ? "" :
     `<rect x="${x(a)}" y="${top - 22}" width="${x(Math.min(b, maxShare)) - x(a)}" height="${plotH + 22}" fill="var(--${wash})"/>` +
-    `<text x="${x(a) + 8}" y="${top - 7}" font-size="13" fill="var(--ink-2)">${label}</text>`;
+    (narrow ? "" : `<text x="${x(a) + 8}" y="${top - 7}" font-size="13" fill="var(--ink-2)">${label}</text>`);
   let svg = zone(0, .3, "good-wash", "Within the guideline") + zone(.3, .5, "warn-wash", "Stretched") + zone(.5, 9, "crit-wash", "Severe");
   svg += `<line x1="${padL}" x2="${W - padR}" y1="${base}" y2="${base}" stroke="var(--axis)"/>`;
-  for (let t = 0; t <= maxShare + 1e-9; t += 0.1) svg += `<text x="${x(t)}" y="${base + 20}" text-anchor="middle" font-size="13" fill="var(--muted)">${Math.round(t * 100)}%${t + 0.1 > maxShare && maxShare >= 1 ? "+" : ""}</text>`;
+  for (let t = 0; t <= maxShare + 1e-9; t += (narrow ? 0.2 : 0.1)) svg += `<text x="${x(t)}" y="${base + 20}" text-anchor="middle" font-size="13" fill="var(--muted)">${Math.round(t * 100)}%${t + 0.1 > maxShare && maxShare >= 1 ? "+" : ""}</text>`;
   placed.forEach(p => {
     const st = standing(p.r.share), id = p.r.city.id, sel = id === S.city, cmp = id === S.compare;
     const cy = base - R - 3 - p.level * (R * 2 + 2);
@@ -442,10 +444,10 @@ function renderSwarm() {
   });
   [[S.city, "var(--ink)"], [S.compare, "var(--s2)"]].forEach(([id, col]) => {
     const p = placed.find(q => q.r.city.id === id); if (!p) return;
-    const right = p.cx > W - 170;
+    const right = p.cx > W - 170 || (narrow && p.cx > W / 2);
     svg += `<text x="${p.cx + (right ? -15 : 15)}" y="${p.cy + 5}" text-anchor="${right ? "end" : "start"}" font-size="15" font-weight="700" fill="var(--ink)" stroke="var(--surface)" stroke-width="4" paint-order="stroke" pointer-events="none">${esc(p.r.city.city)} ${pct(p.r.share)}</text>`;
   });
-  const el = $("#swarm"); el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.innerHTML = svg;
+  el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.innerHTML = svg;
   const tip = $("#swarm-tip");
   const show = t => {
     const r = rows.find(q => q.city.id === +t.dataset.id), box = el.getBoundingClientRect(), k = box.width / W;
@@ -459,10 +461,10 @@ function renderSwarm() {
   const pick = t => { if (t.dataset.id) { S.city = +t.dataset.id; if (S.compare === S.city) S.compare = 0; render(); const d = $(`#swarm [data-id="${S.city}"]`); if (d) d.focus(); } };
   el.onclick = e => pick(e.target);
   el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(e.target); } };
-  const ok = have.filter(r => r.share <= .3).length, unit = unitLabel(S.unit).toLowerCase();
-  $("#swarm-sub").textContent = `Each dot is a city, placed by how much of ${money(S.income)} a year its ${unit} rent would take. ${ok} of ${have.length} cities come in at 30% or less. Click a dot or a row to switch city.`;
+  const ok = have.filter(r => r.share <= .3).length, unit = unitNoun(S.unit);
+  $("#swarm-sub").textContent = `Each dot is a city, placed by how much of ${money(S.income)} a year the rent on a ${unit} would take. ${ok} of ${have.length} cities come in at 30% or less. Click a dot or a row to switch city.`;
   const missing = rows.filter(r => r.share == null).map(r => r.city.city);
-  $("#swarm-note").textContent = missing.length ? `No ${unit} rent is published for ${missing.join(", ")}.` : "";
+  $("#swarm-note").textContent = missing.length ? `No rent is published for a ${unit} in ${missing.join(", ")}.` : "";
 }
 
 function renderRank() {
@@ -487,7 +489,7 @@ function renderRank() {
 
 /* ---------- trend ---------- */
 function renderTrend() {
-  const c = cityById(S.city), cmp = S.compare ? cityById(S.compare) : null, unit = unitLabel(S.unit).toLowerCase(), Q = D.quarters;
+  const c = cityById(S.city), cmp = S.compare ? cityById(S.compare) : null, unit = unitNoun(S.unit), Q = D.quarters;
   let series = [], fmt, note = "", sub;
   const rentOf = x => x.rent[S.unit] || Q.map(() => null);
   if (S.view === "dollars") {
@@ -503,20 +505,20 @@ function renderTrend() {
     fmt = v => v.toFixed(0);
     sub = `Rent and the typical full-time wage, both set to 100 in ${b >= 0 ? Q[b] : "the first quarter"}. When the rent line is above the wage line, rent has grown faster than pay.`;
     const lr = series[0].v.filter(v => v != null).pop(), lw = series[series.length - 1].v.filter(v => v != null).pop();
-    if (lr && lw) note = `Since ${Q[b]}, ${unit} rent in ${c.city} is ${signed(lr / 100 - 1)} and the typical full-time wage in ${D.provinces[c.prov].name} is ${signed(lw / 100 - 1)}.`;
+    if (lr && lw) note = `Since ${Q[b]}, rent on a ${unit} in ${c.city} is ${signed(lr / 100 - 1)} and the typical full-time wage in ${D.provinces[c.prov].name} is ${signed(lw / 100 - 1)}.`;
   }
   $("#trend-title").textContent = S.view === "dollars" ? `Rent over time in ${c.city}${cmp ? " and " + cmp.city : ""}` : `Has pay kept up with rent in ${c.city}?`;
   $("#trend-sub").textContent = sub; $("#trend-note").textContent = note;
   $("#trend-legend").innerHTML = series.length > 1 ? series.map(s => `<span><i class="ln" style="background:${s.color}"></i>${esc(s.name)}</span>`).join("") : "";
   const all = series.flatMap(s => s.v).filter(v => v != null), el = $("#trend");
-  if (!all.length) { el.setAttribute("viewBox", "0 0 1000 60"); el.innerHTML = `<text x="0" y="30" fill="var(--ink-2)" font-size="16">No ${esc(unit)} rent is published for ${esc(c.city)}.</text>`; el.onmousemove = null; return; }
-  const W = 1000, H = 340, L = 62, Rr = 150, T = 14, B = 34;
+  if (!all.length) { el.setAttribute("viewBox", "0 0 1000 60"); el.innerHTML = `<text x="0" y="30" fill="var(--ink-2)" font-size="16">No rent is published for a ${esc(unit)} in ${esc(c.city)}.</text>`; el.onmousemove = null; return; }
+  const W = Math.max(320, Math.round(el.parentNode.clientWidth) || 1000), H = W < 640 ? 270 : 340, L = 58, Rr = W < 640 ? 62 : 90, T = 14, B = 34;
   let lo = Math.min(...all), hi = Math.max(...all); const span = (hi - lo) || 1; lo = S.view === "dollars" ? Math.max(0, lo - span * .15) : lo - span * .1; hi += span * .1;
   const step = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000].find(s => (hi - lo) / s <= 6) || 2000;
   const x = i => L + i / (Q.length - 1) * (W - L - Rr), y = v => T + (hi - v) / (hi - lo) * (H - T - B);
   let svg = "";
   for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) svg += `<line x1="${L}" x2="${W - Rr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L - 10}" y="${y(t) + 4}" text-anchor="end" font-size="13" fill="var(--muted)">${S.view === "dollars" ? money(t) : t}</text>`;
-  Q.forEach((q, i) => { if (q.endsWith("Q1")) svg += `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" font-size="13" fill="var(--muted)">${q.slice(0, 4)}</text>`; });
+  Q.forEach((q, i) => { if (q.endsWith("Q1") && (W >= 640 || (+q.slice(0, 4)) % 2 === 1)) svg += `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" font-size="13" fill="var(--muted)">${q.slice(0, 4)}</text>`; });
   svg += `<line x1="${L}" x2="${W - Rr}" y1="${H - B}" y2="${H - B}" stroke="var(--axis)"/>`;
   const ends = [];
   series.forEach(s => {
@@ -567,8 +569,8 @@ fetch("data/app.json").then(r => { if (!r.ok) throw new Error(r.status); return 
   D = d; readHash(); fillControls(); bind();
   $("#sources").innerHTML = D.meta.sources.map(s => `<li><a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=${s.pid}01">Statistics Canada table ${String(s.pid).replace(/(\d\d)(\d\d)(\d{4})/, "$1-$2-$3")}-01</a>: ${esc(s.title)}. Data through ${s.data_through.slice(0, 7)}, released ${s.released.slice(0, 10)}, ${s.rows.toLocaleString("en-CA")} rows loaded.</li>`).join("");
   $("#built").textContent = `This page was rebuilt on ${new Date(D.meta.generated_at).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}. A scheduled job checks Statistics Canada every day and reloads a table only when it has a new release.`;
-  $("#loading").hidden = true; $("#app").hidden = false; render();
-  window.addEventListener("resize", () => { $("#swarm-tip").classList.remove("on"); $("#trend-tip").classList.remove("on"); });
+  $("#ncities").textContent = D.cities.length; $("#loading").hidden = true; $("#app").hidden = false; render();
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { $("#swarm-tip").classList.remove("on"); $("#trend-tip").classList.remove("on"); renderSwarm(); renderTrend(); }, 150); });
 }).catch(e => { $("#loading").textContent = "The data file could not be loaded. Please try again in a minute."; console.error(e); });
 </script>
 </body>
