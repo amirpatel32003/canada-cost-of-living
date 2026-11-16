@@ -1,0 +1,60 @@
+name: Refresh data and publish
+on:
+  schedule:
+    - cron: "17 14 * * *"   # 09:17 Eastern, after Statistics Canada's 08:30 release
+    - cron: "47 19 * * *"   # backup run
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Re-download every table"
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths: ["pipeline/**", "dbt/**", "site/**", "requirements.txt", ".github/workflows/refresh.yml"]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Restore bronze files and the release manifest from the last run
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/bronze
+            data/manifest.json
+          key: bronze-${{ github.run_id }}
+          restore-keys: bronze-
+      - name: Ingest tables that have a new release
+        run: python -m pipeline.run ingest ${{ inputs.force && '--force' || '' }}
+      - name: dbt build (models and data tests)
+        run: python -m pipeline.run build
+      - name: Export the data file for the tool
+        run: |
+          python -m pipeline.run export
+          cp data/manifest.json site/data/manifest.json
+          ls -la site site/data
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

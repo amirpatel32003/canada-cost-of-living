@@ -1,0 +1,40 @@
+product_id,item,category,qty_per_adult_month
+4,Ground beef (1 kg),Meat and fish,1
+8,Chicken breasts (1 kg),Meat and fish,1.5
+7,Whole chicken (1 kg),Meat and fish,1
+5,Pork loin (1 kg),Meat and fish,1
+12,Canned tuna (170 g),Meat and fish,4
+78,Salmon (1 kg),Meat and fish,0.4
+20,Eggs (dozen),Dairy and eggs,3
+15,Milk (4 L),Dairy and eggs,3
+18,Block cheese (500 g),Dairy and eggs,2
+19,Yogurt (500 g),Dairy and eggs,4
+17,Butter (454 g),Dairy and eggs,1
+56,White bread (675 g),Bread and grains,5
+57,Pasta (500 g),Bread and grains,3
+94,White rice (2 kg),Bread and grains,1
+58,Cereal (400 g),Bread and grains,2
+59,Wheat flour (2.5 kg),Bread and grains,0.5
+21,Apples (1 kg),Fruit and vegetables,3
+24,Bananas (1 kg),Fruit and vegetables,3
+22,Oranges (1 kg),Fruit and vegetables,2
+30,Potatoes (4.54 kg),Fruit and vegetables,1
+31,Tomatoes (1 kg),Fruit and vegetables,2
+33,Carrots (1.36 kg),Fruit and vegetables,2
+35,Onions (1.36 kg),Fruit and vegetables,1
+39,Broccoli (each),Fruit and vegetables,4
+49,Romaine lettuce (each),Fruit and vegetables,3
+40,Peppers (1 kg),Fruit and vegetables,1
+54,Frozen mixed vegetables (750 g),Fruit and vegetables,2
+73,Canned beans and lentils (540 mL),Pantry,4
+71,Canned tomatoes (796 mL),Pantry,3
+105,Pasta sauce (650 mL),Pantry,2
+68,Peanut butter (1 kg),Pantry,0.5
+95,Canola oil (3 L),Pantry,0.25
+63,Coffee (340 g),Pantry,1
+62,Orange juice (2 L),Pantry,2
+60,White sugar (2 kg),Pantry,0.25
+76,Toothpaste (100 mL),Household,0.5
+77,Shampoo (400 mL),Household,0.5
+75,Deodorant (85 g),Household,0.5
+110,Laundry detergent (4.43 L),Household,0.25

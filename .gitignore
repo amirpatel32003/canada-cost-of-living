@@ -1,0 +1,11 @@
+data/
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+site/data/
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+_local/
+.user.yml

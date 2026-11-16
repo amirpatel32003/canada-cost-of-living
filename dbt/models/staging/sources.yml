@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: bronze
+    description: Statistics Canada tables landed as Parquet, every column as text, exactly as published.
+    meta:
+      external_location: "{{ env_var('COL_BRONZE_DIR', '../data/bronze') }}/{name}.parquet"
+    tables:
+      - name: rent
+        description: "Table 46-10-0092-01. Quarterly asking and paid rent by metro area and unit type."
+      - name: rent_members
+      - name: food_prices
+        description: "Table 18-10-0245-01. Monthly average retail prices for about 110 products by province."
+      - name: food_prices_members
+      - name: wages
+        description: "Table 14-10-0063-01. Monthly employee wages by province, industry, type of work, gender and age."
+      - name: wages_members

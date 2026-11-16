@@ -1,0 +1,8 @@
+unit_type_id,unit_type,short_label,kind,sort_order
+5,Room,Room,room,1
+1,Apartment - No bedroom,Studio,apartment,2
+2,Apartment - 1 bedroom,1 bedroom,apartment,3
+3,Apartment - 2 bedrooms,2 bedrooms,apartment,4
+4,Apartment - 3 or more bedrooms,3+ bedrooms,apartment,5
+6,House - 2 bedrooms,2 bed house,house,6
+7,House - 3 or more bedrooms,3+ bed house,house,7

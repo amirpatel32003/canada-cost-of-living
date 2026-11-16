@@ -1,0 +1,17 @@
+# DuckDB is the default so anyone can run this with no account.
+# The bigquery target is here to show the switch: `dbt build --target bigquery` after `pip install dbt-bigquery`
+# and loading the bronze Parquet files into a dataset. Staging models read sources by name, so nothing else changes.
+cost_of_living:
+  target: duckdb
+  outputs:
+    duckdb:
+      type: duckdb
+      path: "{{ env_var('COL_WAREHOUSE_PATH', '../data/warehouse.duckdb') }}"
+      threads: 2
+    bigquery:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT', 'your-project-id') }}"
+      dataset: cost_of_living
+      threads: 4
+      location: northamerica-northeast2

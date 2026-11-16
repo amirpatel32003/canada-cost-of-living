@@ -1,0 +1,47 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    name: Unit tests and dbt build on fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q tests
+  airflow:
+    name: Run the Airflow DAG end to end (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install the pipeline
+        run: pip install -r requirements.txt
+      - name: Install Airflow in its own environment
+        run: |
+          python -m venv "$RUNNER_TEMP/airflow"
+          "$RUNNER_TEMP/airflow/bin/pip" install -q "apache-airflow==3.2.2" \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.2.2/constraints-3.12.txt"
+      - name: airflow dags test
+        env:
+          AIRFLOW_HOME: ${{ runner.temp }}/airflow_home
+          AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+          COL_SOURCE_DIR: ${{ github.workspace }}/tests/fixtures
+          COL_DATA_DIR: ${{ runner.temp }}/col_data
+        run: |
+          export AIRFLOW__CORE__DAGS_FOLDER="$GITHUB_WORKSPACE/dags"
+          export COL_PROJECT_DIR="$GITHUB_WORKSPACE" COL_PYTHON="$(which python)"
+          "$RUNNER_TEMP/airflow/bin/airflow" db migrate
+          "$RUNNER_TEMP/airflow/bin/airflow" dags test canada_cost_of_living
+          test -s site/data/app.json

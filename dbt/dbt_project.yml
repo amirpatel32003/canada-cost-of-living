@@ -1,0 +1,29 @@
+name: cost_of_living
+version: "1.0.0"
+config-version: 2
+profile: cost_of_living
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  affordability_threshold: 0.30   # rent at or under 30% of before-tax income
+  child_basket_factor: 0.7        # a child eats about 70% of an adult basket (assumption, editable in the tool)
+
+models:
+  cost_of_living:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
+
+seeds:
+  cost_of_living:
+    +column_types:
+      lat: double
+      lon: double
+      qty_per_adult_month: double

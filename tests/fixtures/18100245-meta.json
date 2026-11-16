@@ -1,0 +1,760 @@
+{
+ "productId": "18100245",
+ "cubeTitleEn": "Monthly average retail prices for selected products",
+ "cubeStartDate": "2017-01-01",
+ "cubeEndDate": "2026-09-01",
+ "releaseTime": "2026-11-04T08:30",
+ "frequencyCode": 6,
+ "dimension": [
+  {
+   "dimensionPositionId": 1,
+   "dimensionNameEn": "Geography",
+   "member": [
+    {
+     "memberId": 11,
+     "memberNameEn": "Canada",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 1,
+     "memberNameEn": "Newfoundland and Labrador",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Prince Edward Island",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Nova Scotia",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 4,
+     "memberNameEn": "New Brunswick",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 5,
+     "memberNameEn": "Quebec",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 6,
+     "memberNameEn": "Ontario",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 7,
+     "memberNameEn": "Manitoba",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 8,
+     "memberNameEn": "Saskatchewan",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 9,
+     "memberNameEn": "Alberta",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 10,
+     "memberNameEn": "British Columbia",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 12,
+     "memberNameEn": "Whitehorse, Yukon",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 13,
+     "memberNameEn": "Yellowknife, Northwest Territories",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  },
+  {
+   "dimensionPositionId": 2,
+   "dimensionNameEn": "Products",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "Beef stewing cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Beef striploin cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Beef top sirloin cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 41,
+     "memberNameEn": "Beef rib cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 4,
+     "memberNameEn": "Ground beef, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 5,
+     "memberNameEn": "Pork loin cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 6,
+     "memberNameEn": "Pork rib cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 42,
+     "memberNameEn": "Pork shoulder cuts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 7,
+     "memberNameEn": "Whole chicken, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 8,
+     "memberNameEn": "Chicken breasts, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 9,
+     "memberNameEn": "Chicken thigh, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 43,
+     "memberNameEn": "Chicken drumsticks, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 10,
+     "memberNameEn": "Bacon, 500 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 11,
+     "memberNameEn": "Wieners, 400 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 78,
+     "memberNameEn": "Salmon, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 79,
+     "memberNameEn": "Shrimp, 300 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 44,
+     "memberNameEn": "Canned salmon, 213 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 12,
+     "memberNameEn": "Canned tuna, 170 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 80,
+     "memberNameEn": "Meatless burgers, 226 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 13,
+     "memberNameEn": "Milk, 1 litre",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 14,
+     "memberNameEn": "Milk, 2 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 15,
+     "memberNameEn": "Milk, 4 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 81,
+     "memberNameEn": "Soy milk, 1.89 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 82,
+     "memberNameEn": "Nut milk, 1.89 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 16,
+     "memberNameEn": "Cream, 1 litre",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 17,
+     "memberNameEn": "Butter, 454 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 83,
+     "memberNameEn": "Margarine, 907 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 18,
+     "memberNameEn": "Block cheese, 500 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 19,
+     "memberNameEn": "Yogurt, 500 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 20,
+     "memberNameEn": "Eggs, 1 dozen",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 21,
+     "memberNameEn": "Apples, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 22,
+     "memberNameEn": "Oranges, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 23,
+     "memberNameEn": "Oranges, 1.36 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 24,
+     "memberNameEn": "Bananas, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 25,
+     "memberNameEn": "Pears, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 26,
+     "memberNameEn": "Lemons, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 45,
+     "memberNameEn": "Limes, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 27,
+     "memberNameEn": "Grapes, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 28,
+     "memberNameEn": "Cantaloupe, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 84,
+     "memberNameEn": "Strawberries, 454 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 29,
+     "memberNameEn": "Avocado, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 30,
+     "memberNameEn": "Potatoes, 4.54 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 46,
+     "memberNameEn": "Potatoes, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 47,
+     "memberNameEn": "Sweet potatoes, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 31,
+     "memberNameEn": "Tomatoes, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 32,
+     "memberNameEn": "Cabbage, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 33,
+     "memberNameEn": "Carrots, 1.36 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 34,
+     "memberNameEn": "Onions, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 35,
+     "memberNameEn": "Onions, 1.36 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 36,
+     "memberNameEn": "Celery, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 37,
+     "memberNameEn": "Cucumber, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 38,
+     "memberNameEn": "Mushrooms, 227 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 48,
+     "memberNameEn": "Iceberg lettuce, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 49,
+     "memberNameEn": "Romaine lettuce, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 39,
+     "memberNameEn": "Broccoli, unit",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 40,
+     "memberNameEn": "Peppers, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 85,
+     "memberNameEn": "Squash, per kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 86,
+     "memberNameEn": "Salad greens, 142 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 50,
+     "memberNameEn": "Frozen french fried potatoes, 750 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 51,
+     "memberNameEn": "Frozen green beans, 750 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 52,
+     "memberNameEn": "Frozen broccoli, 500 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 53,
+     "memberNameEn": "Frozen corn, 750 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 54,
+     "memberNameEn": "Frozen mixed vegetables, 750 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 55,
+     "memberNameEn": "Frozen peas, 750 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 87,
+     "memberNameEn": "Frozen pizza, 390 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 88,
+     "memberNameEn": "Frozen spinach, 300 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 89,
+     "memberNameEn": "Frozen strawberries, 600 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 56,
+     "memberNameEn": "White bread, 675 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 90,
+     "memberNameEn": "Flatbread and pita, 500 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 91,
+     "memberNameEn": "Crackers and crisp breads, 200 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 92,
+     "memberNameEn": "Cookies and sweet biscuits, 300 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 57,
+     "memberNameEn": "Dry or fresh pasta, 500 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 93,
+     "memberNameEn": "Brown rice, 900 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 94,
+     "memberNameEn": "White rice, 2 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 58,
+     "memberNameEn": "Cereal, 400 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 59,
+     "memberNameEn": "Wheat flour, 2.5 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 60,
+     "memberNameEn": "White sugar, 2 kilograms",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 61,
+     "memberNameEn": "Apple juice, 2 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 62,
+     "memberNameEn": "Orange juice, 2 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 63,
+     "memberNameEn": "Roasted or ground coffee, 340 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 64,
+     "memberNameEn": "Tea (20 bags)",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 65,
+     "memberNameEn": "Ketchup, 1 litre",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 66,
+     "memberNameEn": "Vegetable oil, 3 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 95,
+     "memberNameEn": "Canola oil, 3 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 96,
+     "memberNameEn": "Olive oil, 1 litre",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 67,
+     "memberNameEn": "Baby food, 128 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 97,
+     "memberNameEn": "Infant formula, 900 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 68,
+     "memberNameEn": "Peanut butter, 1 kilogram",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 69,
+     "memberNameEn": "Mayonnaise, 890 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 70,
+     "memberNameEn": "Canned baked beans, 398 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 71,
+     "memberNameEn": "Canned tomatoes, 796 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 72,
+     "memberNameEn": "Canned soup, 284 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 73,
+     "memberNameEn": "Canned beans and lentils, 540 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 98,
+     "memberNameEn": "Canned corn, 341 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 99,
+     "memberNameEn": "Canned peach, 398 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 100,
+     "memberNameEn": "Canned pear, 398 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 74,
+     "memberNameEn": "Dried lentils, 900 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 101,
+     "memberNameEn": "Dry beans and legumes, 900 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 102,
+     "memberNameEn": "Tofu, 350 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 103,
+     "memberNameEn": "Hummus, 227 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 104,
+     "memberNameEn": "Salsa, 418 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 105,
+     "memberNameEn": "Pasta sauce, 650 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 106,
+     "memberNameEn": "Salad dressing, 475 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 107,
+     "memberNameEn": "Almonds, 200 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 108,
+     "memberNameEn": "Peanuts, 450 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 109,
+     "memberNameEn": "Sunflower seeds, 400 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 75,
+     "memberNameEn": "Deodorant, 85 grams",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 76,
+     "memberNameEn": "Toothpaste, 100 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 77,
+     "memberNameEn": "Shampoo, 400 millilitres",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 110,
+     "memberNameEn": "Laundry detergent, 4.43 litres",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  }
+ ]
+}

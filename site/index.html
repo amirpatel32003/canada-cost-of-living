@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Can I afford to live there? Rent, groceries and wages in 42 Canadian cities</title>
+<meta name="description" content="Enter your income and household, pick a city, and see what rent and groceries take out of it. Built on Statistics Canada rent, food price and wage data, refreshed automatically.">
+<meta property="og:title" content="Can I afford to live there?">
+<meta property="og:description" content="Rent, groceries and wages in 42 Canadian cities, from Statistics Canada data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M7 17l9-8 9 8v8H7z%27 fill=%27%23fff%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --page:#eef1f4; --surface:#fcfcfb; --ink:#101828; --ink-2:#465063; --muted:#767d8a;
+  --line:#dfe3e8; --axis:#c2c7cf; --wash:#f3f5f7;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+  --good-ink:#006300; --warn-ink:#7a5200; --crit-ink:#a32424;
+  --good-wash:#e9f6e9; --warn-wash:#fdf3d9; --crit-wash:#fbe6e6;
+  --focus:#2a78d6;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    --page:#111213; --surface:#1a1a19; --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+    --line:#2c2c2a; --axis:#383835; --wash:#222221;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --good-ink:#3fc33f; --warn-ink:#fab219; --crit-ink:#f08a8a;
+    --good-wash:#16261a; --warn-wash:#2a2412; --crit-wash:#2b1717;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font:400 17px/1.5 "Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.top{padding:44px 0 8px}
+h1{font-size:clamp(2.1rem,6vw,3.6rem);line-height:1.02;letter-spacing:-.025em;font-weight:700;margin:0 0 12px;max-width:16ch}
+.lede{color:var(--ink-2);max-width:62ch;margin:0}
+h2{font-size:1.45rem;line-height:1.2;letter-spacing:-.01em;margin:0 0 6px;font-weight:700}
+.sub{color:var(--ink-2);margin:0 0 18px;max-width:70ch;font-size:.97rem}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px;margin:20px 0}
+@media (max-width:600px){section.card{padding:18px;border-radius:10px}}
+
+/* the sentence you fill in */
+.sentence{font-size:clamp(1.25rem,3.2vw,1.8rem);line-height:1.75;font-weight:500;letter-spacing:-.01em;margin:26px 0 6px}
+.sentence select,.sentence input{font:inherit;color:var(--s1);background:transparent;border:0;border-bottom:2px solid var(--s1);border-radius:0;padding:0 2px;margin:0 2px;font-weight:700;max-width:100%}
+.sentence input{width:6.4ch;text-align:right}
+.sentence select{cursor:pointer}
+.sentence select:focus-visible,.sentence input:focus-visible,button:focus-visible,[tabindex]:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:3px}
+.fine{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;color:var(--ink-2);font-size:.95rem;margin-top:10px}
+.fine label{display:flex;gap:8px;align-items:center}
+.fine select,.fine input[type=number]{font:inherit;font-size:.95rem;color:var(--ink);background:var(--surface);border:1px solid var(--axis);border-radius:8px;padding:6px 8px;max-width:270px}
+.fine input[type=number]{width:7ch}
+input[type=range]{width:min(420px,100%);accent-color:var(--s1)}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--surface);color:var(--ink);border:1px solid var(--axis);border-radius:8px;padding:7px 12px;font-size:.92rem}
+.btn:hover{background:var(--wash)}
+
+/* verdict */
+.verdict{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:start}
+@media (max-width:820px){.verdict{grid-template-columns:1fr}}
+.big{font-size:clamp(1.7rem,4.6vw,2.7rem);line-height:1.1;letter-spacing:-.02em;font-weight:700;margin:10px 0 12px}
+.status{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:5px 12px 5px 9px;font-weight:700;font-size:.95rem}
+.status svg{flex:none}
+.status.good{background:var(--good-wash);color:var(--good-ink)}
+.status.warn{background:var(--warn-wash);color:var(--warn-ink)}
+.status.crit{background:var(--crit-wash);color:var(--crit-ink)}
+.status.none{background:var(--wash);color:var(--ink-2)}
+.facts{margin:14px 0 0;padding:0;list-style:none;color:var(--ink-2)}
+.facts li{padding:7px 0;border-top:1px solid var(--line)}
+.facts b{color:var(--ink)}
+.receipt{background:var(--wash);border-radius:10px;padding:18px 18px 12px}
+.receipt h3{margin:0 0 8px;font-size:1rem}
+.receipt table{width:100%;border-collapse:collapse;font-size:.98rem}
+.receipt th{font-weight:500;text-align:left;color:var(--ink-2);padding:6px 0}
+.receipt td{text-align:right;padding:6px 0 6px 12px;white-space:nowrap}
+.receipt thead th,.receipt thead td{font-size:.85rem;color:var(--muted);border-bottom:1px solid var(--axis)}
+.receipt tr.total th,.receipt tr.total td{border-top:2px solid var(--ink);font-weight:700;color:var(--ink)}
+.receipt .neg{color:var(--crit-ink)}
+.note{font-size:.84rem;color:var(--muted);margin:10px 0 0}
+
+/* charts */
+.chartbox{position:relative}
+svg.chart{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);border-radius:8px;padding:8px 10px;font-size:.85rem;line-height:1.35;white-space:nowrap;transform:translate(-50%,-100%);margin-top:-12px;opacity:0;transition:opacity .08s;z-index:5}
+.tip.on{opacity:1}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.9rem;color:var(--ink-2);margin:0 0 8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend i.ln{height:3px;border-radius:2px;width:18px;vertical-align:4px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:0 0 14px;font-size:.95rem;color:var(--ink-2)}
+.seg{display:inline-flex;border:1px solid var(--axis);border-radius:8px;overflow:hidden}
+.seg button{background:var(--surface);color:var(--ink-2);border:0;padding:7px 12px;font-size:.92rem}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--surface)}
+.dot{cursor:pointer}
+
+/* ranked table */
+.tablewrap{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:18px}
+table.rank{width:100%;border-collapse:collapse;font-size:.95rem}
+table.rank th{position:sticky;top:0;background:var(--surface);text-align:left;font-weight:500;color:var(--ink-2);padding:9px 10px;border-bottom:1px solid var(--axis);white-space:nowrap}
+table.rank th button{background:none;border:0;color:inherit;padding:0;font-weight:inherit}
+table.rank th button[aria-sort]:after{content:" ↓"}
+table.rank th button[data-dir="asc"]:after{content:" ↑"}
+table.rank td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.rank tr{cursor:pointer}
+table.rank tbody tr:hover{background:var(--wash)}
+table.rank tr.sel{background:var(--wash);box-shadow:inset 3px 0 0 var(--s1)}
+table.rank tr.cmp{box-shadow:inset 3px 0 0 var(--s2)}
+table.rank .num{text-align:right}
+.bar{position:relative;height:10px;width:min(170px,30vw);background:var(--wash);border-radius:0 4px 4px 0}
+.bar b{position:absolute;left:0;top:0;bottom:0;background:var(--s1);border-radius:0 4px 4px 0}
+.bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+@media (max-width:640px){.hide-s{display:none}}
+
+/* basket */
+.basket{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 28px}
+.cat{font-weight:700;margin:14px 0 4px;grid-column:1/-1;font-size:.95rem}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:.93rem}
+.item small{color:var(--muted);display:block;font-size:.8rem}
+.step{display:inline-flex;align-items:center;border:1px solid var(--axis);border-radius:8px;overflow:hidden}
+.step button{background:var(--surface);color:var(--ink);border:0;width:30px;height:30px;font-size:1.05rem;line-height:1}
+.step button:hover{background:var(--wash)}
+.step output{min-width:3.4ch;text-align:center;font-size:.9rem}
+.item .amt{min-width:6.5ch;text-align:right}
+.baskettotal{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;margin-top:18px;padding-top:14px;border-top:2px solid var(--ink)}
+.baskettotal strong{font-size:1.5rem}
+footer{color:var(--ink-2);font-size:.92rem;padding:8px 0 60px}
+footer h2{font-size:1.15rem;margin-top:22px}
+footer li{margin:4px 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#loading{padding:60px 0;color:var(--ink-2)}
+@media (prefers-reduced-motion:no-preference){.dot{transition:cx .25s ease,cy .25s ease}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Can I afford to live there?</h1>
+    <p class="lede">Rent, groceries and wages for 42 Canadian cities, from Statistics Canada. Fill in the sentence and everything on the page recalculates for you.</p>
+  </header>
+
+  <div id="loading" role="status">Loading the latest numbers…</div>
+  <main id="app" hidden>
+    <form class="sentence" id="sentence" onsubmit="return false" aria-label="Your household">
+      We are <select id="f-adults" aria-label="Adults"></select>
+      and <select id="f-kids" aria-label="Children"></select>,
+      earning <span style="white-space:nowrap">$<input id="f-income" inputmode="numeric" aria-label="Household income per year, before tax"></span> a year before tax,
+      looking for a <select id="f-unit" aria-label="Home type"></select>
+      in <select id="f-city" aria-label="City"></select>.
+    </form>
+    <div class="fine">
+      <label>Income <input type="range" id="f-income-range" min="20000" max="250000" step="1000" aria-label="Income slider"></label>
+      <label>Not sure? Use typical full-time pay in
+        <select id="f-industry" aria-label="Industry"></select></label>
+      <label>Other monthly bills $<input type="number" id="f-other" min="0" step="50" aria-label="Other monthly bills"></label>
+      <button class="btn" id="share" type="button">Copy link to this result</button>
+    </div>
+
+    <section class="card" aria-live="polite">
+      <div class="verdict">
+        <div>
+          <span id="v-status" class="status none"></span>
+          <p class="big" id="v-big"></p>
+          <ul class="facts" id="v-facts"></ul>
+        </div>
+        <div class="receipt">
+          <h3 id="r-title">Your month</h3>
+          <table id="receipt"></table>
+          <p class="note" id="r-note"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Where your income goes furthest</h2>
+      <p class="sub" id="swarm-sub"></p>
+      <div class="toolbar">
+        <label>Compare with <select id="f-compare" class="btn" aria-label="Compare with another city"></select></label>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--good)"></i>30% or less: within the guideline</span>
+        <span><i style="background:var(--warn)"></i>30 to 50%: stretched</span>
+        <span><i style="background:var(--crit)"></i>Over 50%: severe</span>
+      </div>
+      <div class="chartbox"><svg class="chart" id="swarm" role="group" aria-label="Each city placed by the share of your income its rent would take"></svg><div class="tip" id="swarm-tip"></div></div>
+      <p class="note" id="swarm-note"></p>
+      <div class="tablewrap">
+        <table class="rank" id="rank">
+          <thead><tr>
+            <th><button data-sort="city">City</button></th>
+            <th class="num"><button data-sort="rent">Rent</button></th>
+            <th><button data-sort="share">Share of your income</button></th>
+            <th class="num hide-s"><button data-sort="need">Income needed</button></th>
+            <th class="num hide-s"><button data-sort="chg">Rent, 1 year</button></th>
+            <th class="hide-s">Standing</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 id="trend-title">Rent over time</h2>
+      <p class="sub" id="trend-sub"></p>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Chart view">
+          <button type="button" data-view="dollars">Rent in dollars</button>
+          <button type="button" data-view="index">Rent against wages</button>
+        </div>
+      </div>
+      <div class="legend" id="trend-legend"></div>
+      <div class="chartbox"><svg class="chart" id="trend" role="img"></svg><div class="tip" id="trend-tip"></div></div>
+      <p class="note" id="trend-note"></p>
+    </section>
+
+    <section class="card">
+      <h2>Your grocery basket</h2>
+      <p class="sub" id="basket-sub"></p>
+      <div class="basket" id="basket"></div>
+      <div class="fine" style="margin-top:14px">
+        <label>Add an item <select id="f-add" aria-label="Add a grocery item"></select></label>
+        <button class="btn" id="basket-reset" type="button">Reset to the starting basket</button>
+      </div>
+      <div class="baskettotal" id="basket-total"></div>
+    </section>
+
+    <footer>
+      <h2>How to read this</h2>
+      <ul>
+        <li><b>The 30% guideline.</b> Housing is commonly called affordable in Canada when it costs less than 30% of a household's before-tax income. Above 50% is treated as severe. That is why this page asks for income before tax.</li>
+        <li><b>Rent</b> is the average asking rent for units listed online in that metro area, by quarter. People who have stayed in the same unit for years usually pay less, and where Statistics Canada publishes an average paid rent it is shown next to the asking rent.</li>
+        <li><b>Groceries</b> use average prices for the province, not the city. The starting basket is a plain list of staples for one adult, and a child counts as 70% of an adult. Change the quantities to match how you shop.</li>
+        <li><b>Typical pay</b> is the median wage of full-time employees in the province, averaged over the last 12 months because the monthly figures are not seasonally adjusted, times 52 weeks.</li>
+        <li><b>Not included:</b> income tax, utilities, transit, phone, child care and insurance. Use the other monthly bills box for what you know.</li>
+      </ul>
+      <h2>Where the numbers come from</h2>
+      <ul id="sources"></ul>
+      <p id="built"></p>
+      <p>Built by <a href="https://amirpatel32003.github.io/">Amir Patel</a>. The pipeline, the tests and this page are open on <a href="https://github.com/amirpatel32003/canada-cost-of-living">GitHub</a>. Contains information licensed under the Statistics Canada Open Licence. This is general information, not financial advice.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const money = n => n == null || isNaN(n) ? "n/a" : (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-CA");
+const money2 = n => "$" + n.toFixed(2);
+const pct = (n, d = 0) => n == null || isNaN(n) ? "n/a" : (n * 100).toFixed(d) + "%";
+const signed = n => n == null ? "n/a" : (n >= 0 ? "+" : "") + (n * 100).toFixed(1) + "%";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ICON = {
+  good: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="var(--good)"/><path d="M4.5 8.2l2.3 2.3 4.7-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  warn: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1l7.5 13.5h-15z" fill="var(--warn)"/><path d="M8 6v4.2M8 12.2v.3" stroke="#0b0b0b" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  crit: '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="3" fill="var(--crit)"/><path d="M5 5l6 6M11 5l-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+  none: ""
+};
+const STAND = { good: "Within the guideline", warn: "Stretched", crit: "Severe", none: "No rent published" };
+const standing = share => share == null ? "none" : share <= 0.30 ? "good" : share <= 0.50 ? "warn" : "crit";
+
+let D, S, baseBasket = {};
+const cityById = id => D.cities.find(c => c.id === +id);
+const unitLabel = id => D.unit_types.find(u => u.id === +id).label;
+
+function latestRent(city, unit) {
+  const s = city.rent[unit];
+  if (!s) return null;
+  for (let i = s.length - 1; i >= 0; i--) if (s[i] != null) return { v: s[i], qi: i, stale: i < s.length - 1 };
+  return null;
+}
+function basketPerAdult(prov) {
+  const p = D.provinces[prov].prices; let t = 0;
+  for (const [pid, qty] of Object.entries(S.basket)) if (p[pid]) t += qty * p[pid][0];
+  return t;
+}
+function basketYearAgo(prov) {
+  const p = D.provinces[prov].prices; let now = 0, then = 0;
+  for (const [pid, qty] of Object.entries(S.basket)) if (p[pid] && p[pid][1] != null) { now += qty * p[pid][0]; then += qty * p[pid][1]; }
+  return then ? now / then - 1 : null;
+}
+const eaters = () => S.adults + D.meta.child_factor * S.kids;
+function facts(city) {
+  const r = latestRent(city, S.unit);
+  const monthly = S.income / 12;
+  const groceries = basketPerAdult(city.prov) * eaters();
+  const rent = r ? r.v : null;
+  return { city, r, rent, monthly, groceries, share: rent == null ? null : rent / monthly,
+    left: rent == null ? null : monthly - rent - groceries - S.other, need: rent == null ? null : rent * 12 / D.meta.threshold };
+}
+
+/* ---------- state and URL ---------- */
+function readHash() {
+  const q = new URLSearchParams(location.hash.slice(1)), n = (k, d) => q.has(k) && !isNaN(+q.get(k)) ? +q.get(k) : d;
+  const toronto = D.cities.find(c => c.city === "Toronto") || D.cities[0];
+  S = { city: n("c", toronto.id), unit: n("u", 2), income: n("i", 0), adults: Math.min(4, Math.max(1, n("a", 1))), kids: Math.min(6, Math.max(0, n("k", 0))),
+    other: Math.max(0, n("o", 0)), compare: n("vs", 0), view: q.get("v") === "index" ? "index" : "dollars", sort: "share", dir: "asc", industry: 1, basket: {} };
+  if (!cityById(S.city)) S.city = toronto.id;
+  if (!D.unit_types.some(u => u.id === S.unit)) S.unit = 2;
+  if (!cityById(S.compare) || S.compare === S.city) S.compare = 0;
+  if (!S.income) S.income = cityById(S.city).median_annual_wage || 60000;
+  S.income = Math.min(2000000, Math.max(5000, Math.round(S.income)));
+  D.products.forEach(p => { if (p.qty > 0) baseBasket[p.id] = p.qty; });
+  S.basket = { ...baseBasket };
+  try { const saved = JSON.parse(localStorage.getItem("col-basket") || "null"); if (saved && typeof saved === "object") S.basket = saved; } catch (e) {}
+}
+function writeHash() {
+  const q = new URLSearchParams({ c: S.city, u: S.unit, i: S.income, a: S.adults, k: S.kids });
+  if (S.other) q.set("o", S.other);
+  if (S.compare) q.set("vs", S.compare);
+  if (S.view === "index") q.set("v", "index");
+  history.replaceState(null, "", "#" + q.toString());
+}
+function saveBasket() { try { localStorage.setItem("col-basket", JSON.stringify(S.basket)); } catch (e) {} }
+
+/* ---------- controls ---------- */
+function fillControls() {
+  $("#f-adults").innerHTML = [1, 2, 3, 4].map(n => `<option value="${n}">${n} adult${n > 1 ? "s" : ""}</option>`).join("");
+  $("#f-kids").innerHTML = [0, 1, 2, 3, 4, 5, 6].map(n => `<option value="${n}">${n === 0 ? "no kids" : n + " kid" + (n > 1 ? "s" : "")}</option>`).join("");
+  $("#f-unit").innerHTML = D.unit_types.map(u => `<option value="${u.id}">${esc(u.label.toLowerCase())}</option>`).join("");
+  const byProv = {};
+  D.cities.forEach(c => (byProv[c.prov] = byProv[c.prov] || []).push(c));
+  const groups = Object.keys(byProv).sort((a, b) => D.provinces[a].name.localeCompare(D.provinces[b].name))
+    .map(p => `<optgroup label="${esc(D.provinces[p].name)}">${byProv[p].map(c => `<option value="${c.id}">${esc(c.city)}</option>`).join("")}</optgroup>`).join("");
+  $("#f-city").innerHTML = groups;
+  $("#f-compare").innerHTML = `<option value="0">no other city</option>` + groups;
+  $("#f-industry").innerHTML = `<option value="">choose an industry</option>` + D.industries.map(i => `<option value="${i.id}">${esc(i.id === 1 ? "All industries" : i.name)}</option>`).join("");
+  $("#f-add").innerHTML = `<option value="">choose an item</option>` + D.products.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join("");
+}
+function syncControls() {
+  $("#f-adults").value = S.adults; $("#f-kids").value = S.kids; $("#f-unit").value = S.unit; $("#f-city").value = S.city;
+  $("#f-compare").value = S.compare; $("#f-other").value = S.other || "";
+  if (document.activeElement !== $("#f-income")) $("#f-income").value = S.income.toLocaleString("en-CA");
+  $("#f-income-range").value = Math.min(250000, S.income);
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === S.view));
+}
+function bind() {
+  const set = (k, v) => { S[k] = v; if (k === "city" && S.compare === v) S.compare = 0; render(); };
+  $("#f-adults").onchange = e => set("adults", +e.target.value);
+  $("#f-kids").onchange = e => set("kids", +e.target.value);
+  $("#f-unit").onchange = e => set("unit", +e.target.value);
+  $("#f-city").onchange = e => set("city", +e.target.value);
+  $("#f-compare").onchange = e => set("compare", +e.target.value === S.city ? 0 : +e.target.value);
+  $("#f-other").oninput = e => set("other", Math.max(0, +e.target.value || 0));
+  $("#f-income").oninput = e => { const v = +e.target.value.replace(/[^0-9]/g, ""); if (v >= 5000) set("income", Math.min(2000000, v)); };
+  $("#f-income").onblur = () => syncControls();
+  $("#f-income-range").oninput = e => set("income", +e.target.value);
+  $("#f-industry").onchange = e => {
+    if (!e.target.value) return;
+    const w = D.provinces[cityById(S.city).prov].industries[e.target.value];
+    if (w) { S.industry = +e.target.value; set("income", w.annual * S.adults); }
+  };
+  document.querySelectorAll(".seg button").forEach(b => b.onclick = () => set("view", b.dataset.view));
+  document.querySelectorAll("#rank th button").forEach(b => b.onclick = () => {
+    if (S.sort === b.dataset.sort) S.dir = S.dir === "asc" ? "desc" : "asc"; else { S.sort = b.dataset.sort; S.dir = b.dataset.sort === "chg" ? "desc" : "asc"; }
+    renderRank();
+  });
+  $("#share").onclick = async e => {
+    writeHash();
+    try { await navigator.clipboard.writeText(location.href); e.target.textContent = "Link copied"; }
+    catch (err) { e.target.textContent = "Copy the address bar"; }
+    setTimeout(() => e.target.textContent = "Copy link to this result", 1800);
+  };
+  $("#f-add").onchange = e => { if (e.target.value) { S.basket[e.target.value] = S.basket[e.target.value] || 1; e.target.value = ""; saveBasket(); render(); } };
+  $("#basket-reset").onclick = () => { S.basket = { ...baseBasket }; saveBasket(); render(); };
+  $("#basket").onclick = e => {
+    const b = e.target.closest("button[data-pid]"); if (!b) return;
+    const pid = b.dataset.pid, step = +b.dataset.step, next = Math.round(((S.basket[pid] || 0) + step) * 100) / 100;
+    if (next <= 0) delete S.basket[pid]; else S.basket[pid] = next;
+    saveBasket(); render();
+    const again = $(`#basket button[data-pid="${pid}"][data-step="${step}"]`); if (again) again.focus();
+  };
+}
+
+/* ---------- verdict ---------- */
+function renderVerdict() {
+  const c = cityById(S.city), f = facts(c), unit = unitLabel(S.unit).toLowerCase(), st = standing(f.share);
+  const el = $("#v-status"); el.className = "status " + st; el.innerHTML = ICON[st] + STAND[st];
+  if (f.rent == null) {
+    $("#v-big").textContent = `Statistics Canada does not publish a ${unit} rent for ${c.city}.`;
+    $("#v-facts").innerHTML = `<li>Try another home type. Smaller markets often have too few listings for a reliable average.</li>`;
+  } else {
+    $("#v-big").textContent = `A ${unit} in ${c.city} would take ${pct(f.share)} of your income.`;
+    const gap = f.need - S.income, prov = D.provinces[c.prov], li = [];
+    li.push(gap > 0
+      ? `To keep rent at 30%, the household would need <b>${money(f.need)}</b> a year, which is <b>${money(gap)}</b> more than you entered.`
+      : `You clear the 30% guideline with <b>${money(-gap)}</b> a year to spare. It takes <b>${money(f.need)}</b>.`);
+    const hourly = prov.industries["1"] ? prov.industries["1"].hourly : null;
+    if (hourly) li.push(`At the typical full-time wage in ${esc(prov.name)} (<b>${money2(hourly)}</b> an hour), this rent is <b>${Math.round(f.rent / hourly)} hours</b> of work a month.`);
+    if (c.paid[S.unit]) li.push(`Tenants already in a ${unit} here pay <b>${money(c.paid[S.unit])}</b> on average. New listings ask <b>${money(f.rent - c.paid[S.unit])}</b> more.`);
+    const s = c.rent[S.unit], ago = f.r.qi >= 4 ? s[f.r.qi - 4] : null;
+    if (ago) li.push(`Asking rent is <b>${signed(f.rent / ago - 1)}</b> against a year earlier (${money(ago)}).`);
+    if (c.caution.includes(S.unit)) li.push(`Statistics Canada flags this estimate "use with caution" because it rests on few listings.`);
+    if (f.r.stale) li.push(`The latest published quarter for this home type here is ${D.quarters[f.r.qi]}.`);
+    $("#v-facts").innerHTML = li.map(x => `<li>${x}</li>`).join("");
+  }
+  const cmp = S.compare ? facts(cityById(S.compare)) : null, cols = cmp ? [f, cmp] : [f];
+  const row = (label, fn, cls = "") => `<tr class="${cls}"><th scope="row">${label}</th>${cols.map(x => { const v = fn(x); return `<td class="${typeof v === "number" && v < 0 ? "neg" : ""}">${typeof v === "number" ? money(v) : v}</td>`; }).join("")}</tr>`;
+  $("#r-title").textContent = cmp ? "Your month, side by side" : "Your month in " + c.city;
+  $("#receipt").innerHTML =
+    (cmp ? `<thead><tr><th></th>${cols.map(x => `<td>${esc(x.city.city)}</td>`).join("")}</tr></thead>` : "") + "<tbody>" +
+    row("Income before tax", x => x.monthly) +
+    row(`Rent, ${unit}`, x => x.rent == null ? "n/a" : -x.rent) +
+    row(`Groceries for ${S.adults + S.kids}`, x => -x.groceries) +
+    (S.other ? row("Other bills", () => -S.other) : "") +
+    row("Left before tax", x => x.left == null ? "n/a" : x.left, "total") + "</tbody>";
+  let note = "Income tax is not taken off. See the notes at the bottom for what is left out.";
+  if (cmp && f.left != null && cmp.left != null) {
+    const d = cmp.left - f.left;
+    note = `${cmp.city.city} leaves you ${money(Math.abs(d))} ${d >= 0 ? "more" : "less"} a month than ${c.city}, or ${money(Math.abs(d) * 12)} a year, on the same income. ` + note;
+  }
+  $("#r-note").textContent = note;
+}
+
+/* ---------- swarm: every city by share of income ---------- */
+function renderSwarm() {
+  const W = 1000, padL = 16, padR = 16, R = 9, top = 34;
+  const rows = D.cities.map(c => facts(c));
+  const have = rows.filter(r => r.share != null).sort((a, b) => a.share - b.share);
+  const maxShare = Math.min(1, Math.max(0.62, ...have.map(r => r.share)) + 0.04);
+  const x = v => padL + Math.min(v, maxShare) / maxShare * (W - padL - padR);
+  const placed = [];
+  have.forEach(r => {
+    const cx = x(r.share); let level = 0;
+    while (placed.some(p => p.level === level && Math.abs(p.cx - cx) < R * 2 + 2)) level++;
+    placed.push({ cx, level, r });
+  });
+  const levels = Math.max(...placed.map(p => p.level), 0) + 1, plotH = levels * (R * 2 + 2) + 10, base = top + plotH, H = base + 34;
+  const zone = (a, b, wash, label) => a >= maxShare ? "" :
+    `<rect x="${x(a)}" y="${top - 22}" width="${x(Math.min(b, maxShare)) - x(a)}" height="${plotH + 22}" fill="var(--${wash})"/>` +
+    `<text x="${x(a) + 8}" y="${top - 7}" font-size="13" fill="var(--ink-2)">${label}</text>`;
+  let svg = zone(0, .3, "good-wash", "Within the guideline") + zone(.3, .5, "warn-wash", "Stretched") + zone(.5, 9, "crit-wash", "Severe");
+  svg += `<line x1="${padL}" x2="${W - padR}" y1="${base}" y2="${base}" stroke="var(--axis)"/>`;
+  for (let t = 0; t <= maxShare + 1e-9; t += 0.1) svg += `<text x="${x(t)}" y="${base + 20}" text-anchor="middle" font-size="13" fill="var(--muted)">${Math.round(t * 100)}%${t + 0.1 > maxShare && maxShare >= 1 ? "+" : ""}</text>`;
+  placed.forEach(p => {
+    const st = standing(p.r.share), id = p.r.city.id, sel = id === S.city, cmp = id === S.compare;
+    const cy = base - R - 3 - p.level * (R * 2 + 2);
+    svg += `<circle class="dot" tabindex="0" role="button" data-id="${id}" cx="${p.cx.toFixed(1)}" cy="${cy}" r="${R}" fill="var(--${st})" stroke="${sel ? "var(--ink)" : cmp ? "var(--s2)" : "var(--surface)"}" stroke-width="${sel || cmp ? 3.5 : 2}" aria-label="${esc(p.r.city.city)}: ${pct(p.r.share)} of income, rent ${money(p.r.rent)}"/>`;
+    p.cy = cy;
+  });
+  [[S.city, "var(--ink)"], [S.compare, "var(--s2)"]].forEach(([id, col]) => {
+    const p = placed.find(q => q.r.city.id === id); if (!p) return;
+    const right = p.cx > W - 170;
+    svg += `<text x="${p.cx + (right ? -15 : 15)}" y="${p.cy + 5}" text-anchor="${right ? "end" : "start"}" font-size="15" font-weight="700" fill="var(--ink)" stroke="var(--surface)" stroke-width="4" paint-order="stroke" pointer-events="none">${esc(p.r.city.city)} ${pct(p.r.share)}</text>`;
+  });
+  const el = $("#swarm"); el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.innerHTML = svg;
+  const tip = $("#swarm-tip");
+  const show = t => {
+    const r = rows.find(q => q.city.id === +t.dataset.id), box = el.getBoundingClientRect(), k = box.width / W;
+    tip.innerHTML = `<b>${esc(r.city.city)}</b>, ${r.city.prov}<br>Rent ${money(r.rent)} · ${pct(r.share, 1)} of income<br>Needs ${money(r.need)} a year`;
+    tip.style.left = Math.min(box.width - 90, Math.max(90, +t.getAttribute("cx") * k)) + "px"; tip.style.top = (+t.getAttribute("cy") * k) + "px"; tip.classList.add("on");
+  };
+  el.onmousemove = e => e.target.dataset.id ? show(e.target) : tip.classList.remove("on");
+  el.onmouseleave = () => tip.classList.remove("on");
+  el.onfocusin = e => e.target.dataset.id && show(e.target);
+  el.onfocusout = () => tip.classList.remove("on");
+  const pick = t => { if (t.dataset.id) { S.city = +t.dataset.id; if (S.compare === S.city) S.compare = 0; render(); const d = $(`#swarm [data-id="${S.city}"]`); if (d) d.focus(); } };
+  el.onclick = e => pick(e.target);
+  el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(e.target); } };
+  const ok = have.filter(r => r.share <= .3).length, unit = unitLabel(S.unit).toLowerCase();
+  $("#swarm-sub").textContent = `Each dot is a city, placed by how much of ${money(S.income)} a year its ${unit} rent would take. ${ok} of ${have.length} cities come in at 30% or less. Click a dot or a row to switch city.`;
+  const missing = rows.filter(r => r.share == null).map(r => r.city.city);
+  $("#swarm-note").textContent = missing.length ? `No ${unit} rent is published for ${missing.join(", ")}.` : "";
+}
+
+function renderRank() {
+  const rows = D.cities.map(c => { const f = facts(c), s = c.rent[S.unit], ago = f.r && f.r.qi >= 4 ? s[f.r.qi - 4] : null; return { ...f, chg: f.rent != null && ago ? f.rent / ago - 1 : null }; });
+  const key = { city: r => r.city.city, rent: r => r.rent, share: r => r.share, need: r => r.need, chg: r => r.chg }[S.sort], dir = S.dir === "asc" ? 1 : -1;
+  rows.sort((a, b) => { const A = key(a), B = key(b); if (A == null) return 1; if (B == null) return -1; return (typeof A === "string" ? A.localeCompare(B) : A - B) * dir; });
+  document.querySelectorAll("#rank th button").forEach(b => { if (b.dataset.sort === S.sort) { b.setAttribute("aria-sort", S.dir === "asc" ? "ascending" : "descending"); b.dataset.dir = S.dir; } else { b.removeAttribute("aria-sort"); delete b.dataset.dir; } });
+  $("#rank tbody").innerHTML = rows.map(r => {
+    const st = standing(r.share), w = r.share == null ? 0 : Math.min(100, r.share * 100);
+    return `<tr data-id="${r.city.id}" tabindex="0" class="${r.city.id === S.city ? "sel" : r.city.id === S.compare ? "cmp" : ""}">
+      <td>${esc(r.city.city)} <span style="color:var(--muted)">${r.city.prov}</span></td>
+      <td class="num">${money(r.rent)}</td>
+      <td><div style="display:flex;gap:10px;align-items:center"><div class="bar" aria-hidden="true"><b style="width:${w}%"></b><u style="left:30%"></u></div><span>${pct(r.share)}</span></div></td>
+      <td class="num hide-s">${money(r.need)}</td>
+      <td class="num hide-s">${signed(r.chg)}</td>
+      <td class="hide-s"><span class="status ${st}" style="padding:2px 9px 2px 6px;font-size:.82rem">${ICON[st]}${STAND[st]}</span></td></tr>`;
+  }).join("");
+  const go = t => { const tr = t.closest("tr[data-id]"); if (tr) { S.city = +tr.dataset.id; if (S.compare === S.city) S.compare = 0; render(); } };
+  $("#rank tbody").onclick = e => go(e.target);
+  $("#rank tbody").onkeydown = e => { if (e.key === "Enter") go(e.target); };
+}
+
+/* ---------- trend ---------- */
+function renderTrend() {
+  const c = cityById(S.city), cmp = S.compare ? cityById(S.compare) : null, unit = unitLabel(S.unit).toLowerCase(), Q = D.quarters;
+  let series = [], fmt, note = "", sub;
+  const rentOf = x => x.rent[S.unit] || Q.map(() => null);
+  if (S.view === "dollars") {
+    series.push({ name: c.city, color: "var(--s1)", v: rentOf(c) });
+    if (cmp) series.push({ name: cmp.city, color: "var(--s2)", v: rentOf(cmp) });
+    fmt = money; sub = `Average asking rent for a ${unit}, by quarter.`;
+  } else {
+    const rent = rentOf(c), wage = D.provinces[c.prov].wage_q, b = rent.findIndex((v, i) => v != null && wage[i] != null);
+    const idx = (a, i0) => a.map(v => v == null || i0 < 0 ? null : v / a[i0] * 100);
+    series.push({ name: `${c.city} rent`, color: "var(--s1)", v: idx(rent, b) });
+    if (cmp) { const r2 = rentOf(cmp); series.push({ name: `${cmp.city} rent`, color: "var(--s2)", v: r2[b] != null ? idx(r2, b) : Q.map(() => null) }); }
+    series.push({ name: `Full-time wage, ${D.provinces[c.prov].name}`, color: "var(--s3)", v: idx(wage, b) });
+    fmt = v => v.toFixed(0);
+    sub = `Rent and the typical full-time wage, both set to 100 in ${b >= 0 ? Q[b] : "the first quarter"}. When the rent line is above the wage line, rent has grown faster than pay.`;
+    const lr = series[0].v.filter(v => v != null).pop(), lw = series[series.length - 1].v.filter(v => v != null).pop();
+    if (lr && lw) note = `Since ${Q[b]}, ${unit} rent in ${c.city} is ${signed(lr / 100 - 1)} and the typical full-time wage in ${D.provinces[c.prov].name} is ${signed(lw / 100 - 1)}.`;
+  }
+  $("#trend-title").textContent = S.view === "dollars" ? `Rent over time in ${c.city}${cmp ? " and " + cmp.city : ""}` : `Has pay kept up with rent in ${c.city}?`;
+  $("#trend-sub").textContent = sub; $("#trend-note").textContent = note;
+  $("#trend-legend").innerHTML = series.length > 1 ? series.map(s => `<span><i class="ln" style="background:${s.color}"></i>${esc(s.name)}</span>`).join("") : "";
+  const all = series.flatMap(s => s.v).filter(v => v != null), el = $("#trend");
+  if (!all.length) { el.setAttribute("viewBox", "0 0 1000 60"); el.innerHTML = `<text x="0" y="30" fill="var(--ink-2)" font-size="16">No ${esc(unit)} rent is published for ${esc(c.city)}.</text>`; el.onmousemove = null; return; }
+  const W = 1000, H = 340, L = 62, Rr = 150, T = 14, B = 34;
+  let lo = Math.min(...all), hi = Math.max(...all); const span = (hi - lo) || 1; lo = S.view === "dollars" ? Math.max(0, lo - span * .15) : lo - span * .1; hi += span * .1;
+  const step = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000].find(s => (hi - lo) / s <= 6) || 2000;
+  const x = i => L + i / (Q.length - 1) * (W - L - Rr), y = v => T + (hi - v) / (hi - lo) * (H - T - B);
+  let svg = "";
+  for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) svg += `<line x1="${L}" x2="${W - Rr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L - 10}" y="${y(t) + 4}" text-anchor="end" font-size="13" fill="var(--muted)">${S.view === "dollars" ? money(t) : t}</text>`;
+  Q.forEach((q, i) => { if (q.endsWith("Q1")) svg += `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" font-size="13" fill="var(--muted)">${q.slice(0, 4)}</text>`; });
+  svg += `<line x1="${L}" x2="${W - Rr}" y1="${H - B}" y2="${H - B}" stroke="var(--axis)"/>`;
+  const ends = [];
+  series.forEach(s => {
+    let d = "", pen = false, last = -1;
+    s.v.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1); pen = true; last = i; });
+    svg += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (last >= 0) { svg += `<circle cx="${x(last)}" cy="${y(s.v[last])}" r="4.5" fill="${s.color}" stroke="var(--surface)" stroke-width="2"/>`; ends.push({ s, x: x(last), y: y(s.v[last]), v: s.v[last] }); }
+  });
+  ends.sort((a, b) => a.y - b.y); for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 18) ends[i].y = ends[i - 1].y + 18;
+  ends.forEach(e => svg += `<text x="${e.x + 10}" y="${e.y + 5}" font-size="14" font-weight="700" fill="var(--ink)">${fmt(e.v)}</text>`);
+  svg += `<g id="xh" visibility="hidden"><line y1="${T}" y2="${H - B}" stroke="var(--ink-2)" stroke-dasharray="3 3"/>${series.map((s, i) => `<circle r="5" fill="${s.color}" stroke="var(--surface)" stroke-width="2" data-s="${i}"/>`).join("")}</g>`;
+  el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.innerHTML = svg;
+  el.setAttribute("aria-label", `${$("#trend-title").textContent}. ${series.map(s => { const v = s.v.filter(z => z != null); return v.length ? `${s.name}: ${fmt(v[0])} to ${fmt(v[v.length - 1])}` : ""; }).join(". ")}`);
+  const tip = $("#trend-tip"), xh = $("#xh", el);
+  el.onmousemove = e => {
+    const box = el.getBoundingClientRect(), k = box.width / W, i = Math.round(((e.clientX - box.left) / k - L) / (W - L - Rr) * (Q.length - 1));
+    if (i < 0 || i >= Q.length) { xh.setAttribute("visibility", "hidden"); tip.classList.remove("on"); return; }
+    xh.setAttribute("visibility", "visible"); xh.querySelector("line").setAttribute("x1", x(i)); xh.querySelector("line").setAttribute("x2", x(i));
+    let top = H;
+    xh.querySelectorAll("circle").forEach(cir => { const v = series[+cir.dataset.s].v[i]; if (v == null) cir.setAttribute("visibility", "hidden"); else { cir.setAttribute("visibility", "inherit"); cir.setAttribute("cx", x(i)); cir.setAttribute("cy", y(v)); top = Math.min(top, y(v)); } });
+    tip.innerHTML = `<b>${Q[i]}</b><br>` + series.map(s => `${esc(s.name)}: ${s.v[i] == null ? "not published" : fmt(s.v[i])}`).join("<br>");
+    tip.style.left = Math.min(box.width - 110, Math.max(110, x(i) * k)) + "px"; tip.style.top = (top * k) + "px"; tip.classList.add("on");
+  };
+  el.onmouseleave = () => { xh.setAttribute("visibility", "hidden"); tip.classList.remove("on"); };
+}
+
+/* ---------- basket ---------- */
+function renderBasket() {
+  const c = cityById(S.city), prov = D.provinces[c.prov], order = ["Meat and fish", "Dairy and eggs", "Bread and grains", "Fruit and vegetables", "Pantry", "Household", "Added by you"];
+  const groups = {};
+  Object.entries(S.basket).forEach(([pid, qty]) => {
+    const p = D.products.find(z => z.id === +pid); if (!p) return;
+    (groups[p.category || "Added by you"] = groups[p.category || "Added by you"] || []).push({ p, qty, price: prov.prices[pid] });
+  });
+  $("#basket").innerHTML = order.filter(g => groups[g]).map(g => `<div class="cat">${g}</div>` + groups[g].map(({ p, qty, price }) => `
+    <div class="item"><div>${esc(p.label || p.name)}<small>${price ? money2(price[0]) + " each" + (price[1] ? ", " + signed(price[0] / price[1] - 1) + " in a year" : "") : "no price published in " + esc(prov.name)}</small></div>
+    <div class="step"><button type="button" data-pid="${p.id}" data-step="-0.5" aria-label="Less ${esc(p.label || p.name)}">−</button><output>${qty}</output><button type="button" data-pid="${p.id}" data-step="0.5" aria-label="More ${esc(p.label || p.name)}">+</button></div>
+    <div class="amt">${price ? money2(qty * price[0]) : "n/a"}</div></div>`).join("")).join("");
+  const per = basketPerAdult(c.prov), yr = basketYearAgo(c.prov);
+  $("#basket-sub").textContent = `Quantities are for one adult for one month, at average ${prov.name} prices for ${D.meta.food_month}. Change them and the result at the top updates.`;
+  $("#basket-total").innerHTML = `<span><strong>${money(per)}</strong> a month for one adult</span><span><strong>${money(per * eaters())}</strong> for your household of ${S.adults + S.kids}</span>` +
+    (yr != null ? `<span style="color:var(--ink-2)">This basket costs ${signed(yr)} against a year ago</span>` : "");
+}
+
+function render() { syncControls(); renderVerdict(); renderSwarm(); renderRank(); renderTrend(); renderBasket(); writeHash(); }
+
+fetch("data/app.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+  D = d; readHash(); fillControls(); bind();
+  $("#sources").innerHTML = D.meta.sources.map(s => `<li><a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=${s.pid}01">Statistics Canada table ${String(s.pid).replace(/(\d\d)(\d\d)(\d{4})/, "$1-$2-$3")}-01</a>: ${esc(s.title)}. Data through ${s.data_through.slice(0, 7)}, released ${s.released.slice(0, 10)}, ${s.rows.toLocaleString("en-CA")} rows loaded.</li>`).join("");
+  $("#built").textContent = `This page was rebuilt on ${new Date(D.meta.generated_at).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}. A scheduled job checks Statistics Canada every day and reloads a table only when it has a new release.`;
+  $("#loading").hidden = true; $("#app").hidden = false; render();
+  window.addEventListener("resize", () => { $("#swarm-tip").classList.remove("on"); $("#trend-tip").classList.remove("on"); });
+}).catch(e => { $("#loading").textContent = "The data file could not be loaded. Please try again in a minute."; console.error(e); });
+</script>
+</body>
+</html>

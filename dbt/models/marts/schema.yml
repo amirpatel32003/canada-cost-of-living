@@ -1,0 +1,81 @@
+version: 2
+
+models:
+  - name: dim_city
+    description: Metro areas with rent data, mapped to their province.
+    columns:
+      - name: city_id
+        tests: [unique, not_null]
+      - name: city
+        tests: [unique, not_null]
+      - name: food_geo_id
+        tests: [not_null]
+      - name: wage_geo_id
+        tests: [not_null]
+  - name: dim_product
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+  - name: dim_industry
+    columns:
+      - name: industry_id
+        tests: [unique, not_null]
+  - name: fct_rent_quarterly
+    description: Asking and paid rent per city, unit type and quarter.
+    tests:
+      - unique_combination:
+          columns: [city_id, unit_type_id, quarter_start]
+    columns:
+      - name: city_id
+        tests:
+          - not_null
+          - relationships: {to: ref('dim_city'), field: city_id}
+      - name: unit_type_id
+        tests:
+          - relationships: {to: ref('unit_types'), field: unit_type_id}
+  - name: fct_food_price_monthly
+    tests:
+      - unique_combination:
+          columns: [food_geo_id, product_id, month_start]
+    columns:
+      - name: price
+        tests: [not_null]
+      - name: product_id
+        tests:
+          - relationships: {to: ref('dim_product'), field: product_id}
+  - name: fct_wage_monthly
+    tests:
+      - unique_combination:
+          columns: [wage_geo_id, industry_id, work_type_id, month_start]
+    columns:
+      - name: industry_id
+        tests:
+          - relationships: {to: ref('dim_industry'), field: industry_id}
+      - name: median_hourly_wage
+        tests:
+          - value_between: {min_value: 5, max_value: 150}
+  - name: mart_basket_monthly
+    tests:
+      - unique_combination:
+          columns: [food_geo_id, month_start]
+    columns:
+      - name: basket_per_adult
+        tests:
+          - not_null
+          - value_between: {min_value: 100, max_value: 1500}
+  - name: mart_city_affordability
+    description: One row per city for the tool's headline numbers.
+    columns:
+      - name: city_id
+        tests: [unique, not_null]
+      - name: rent_1bed
+        tests: [not_null]
+      - name: basket_per_adult
+        tests: [not_null]
+      - name: median_annual_wage
+        tests:
+          - not_null
+          - value_between: {min_value: 20000, max_value: 250000}
+      - name: rent_share_of_median_wage
+        tests:
+          - value_between: {min_value: 0.05, max_value: 1.5}

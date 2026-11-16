@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: stg_rent
+    columns:
+      - name: quarter_start
+        tests: [not_null]
+      - name: rent_geo_id
+        tests: [not_null]
+      - name: unit_type_id
+        tests:
+          - not_null
+          - relationships: {to: ref('unit_types'), field: unit_type_id}
+      - name: estimate_id
+        tests:
+          - accepted_values: {values: [1, 2], quote: false}
+      - name: rent
+        tests:
+          - value_between: {min_value: 200, max_value: 10000}
+  - name: stg_food_prices
+    columns:
+      - name: month_start
+        tests: [not_null]
+      - name: product_id
+        tests: [not_null]
+      - name: price
+        tests:
+          - value_between: {min_value: 0.05, max_value: 200}
+  - name: stg_wages
+    columns:
+      - name: month_start
+        tests: [not_null]
+      - name: wage_measure_id
+        tests:
+          - accepted_values: {values: [1, 2, 3, 4, 5], quote: false}
+  - name: stg_members
+    columns:
+      - name: member_id
+        tests: [not_null]

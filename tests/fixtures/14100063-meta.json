@@ -1,0 +1,316 @@
+{
+ "productId": "14100063",
+ "cubeTitleEn": "Employee wages by industry, monthly, unadjusted for seasonality",
+ "cubeStartDate": "1997-01-01",
+ "cubeEndDate": "2026-10-01",
+ "releaseTime": "2026-11-06T08:30",
+ "frequencyCode": 6,
+ "dimension": [
+  {
+   "dimensionPositionId": 1,
+   "dimensionNameEn": "Geography",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "Canada",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Newfoundland and Labrador",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Prince Edward Island",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 4,
+     "memberNameEn": "Nova Scotia",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 5,
+     "memberNameEn": "New Brunswick",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 6,
+     "memberNameEn": "Quebec",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 7,
+     "memberNameEn": "Ontario",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 8,
+     "memberNameEn": "Manitoba",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 9,
+     "memberNameEn": "Saskatchewan",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 10,
+     "memberNameEn": "Alberta",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 11,
+     "memberNameEn": "British Columbia",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  },
+  {
+   "dimensionPositionId": 2,
+   "dimensionNameEn": "Wages",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "Total employees, all wages",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Average hourly wage rate",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Average weekly wage rate",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 4,
+     "memberNameEn": "Median hourly wage rate",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 5,
+     "memberNameEn": "Median weekly wage rate",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  },
+  {
+   "dimensionPositionId": 3,
+   "dimensionNameEn": "Type of work",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "Both full- and part-time employees",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Full-time employees",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Part-time employees",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  },
+  {
+   "dimensionPositionId": 4,
+   "dimensionNameEn": "North American Industry Classification System (NAICS)",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "Total employees, all industries",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Goods-producing sector",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Agriculture",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 4,
+     "memberNameEn": "Forestry, fishing, mining, quarrying, oil and gas",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 5,
+     "memberNameEn": "Utilities",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 6,
+     "memberNameEn": "Construction",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 7,
+     "memberNameEn": "Manufacturing",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 8,
+     "memberNameEn": "Services-producing sector",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 9,
+     "memberNameEn": "Wholesale and retail trade",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 10,
+     "memberNameEn": "Transportation and warehousing",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 11,
+     "memberNameEn": "Finance, insurance, real estate, rental and leasing",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 12,
+     "memberNameEn": "Professional, scientific and technical services",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 13,
+     "memberNameEn": "Business, building and other support services",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 14,
+     "memberNameEn": "Educational services",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 15,
+     "memberNameEn": "Health care and social assistance",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 16,
+     "memberNameEn": "Information, culture and recreation",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 17,
+     "memberNameEn": "Accommodation and food services",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 18,
+     "memberNameEn": "Other services (except public administration)",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 19,
+     "memberNameEn": "Public administration",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  },
+  {
+   "dimensionPositionId": 5,
+   "dimensionNameEn": "Gender",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "Total - Gender",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "Men+",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "Women+",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  },
+  {
+   "dimensionPositionId": 6,
+   "dimensionNameEn": "Age group",
+   "member": [
+    {
+     "memberId": 1,
+     "memberNameEn": "15 years and over",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 2,
+     "memberNameEn": "15 to 24 years",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 3,
+     "memberNameEn": "25 to 54 years",
+     "parentMemberId": null,
+     "terminated": 0
+    },
+    {
+     "memberId": 4,
+     "memberNameEn": "55 years and over",
+     "parentMemberId": null,
+     "terminated": 0
+    }
+   ]
+  }
+ ]
+}
