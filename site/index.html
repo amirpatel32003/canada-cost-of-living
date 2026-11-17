@@ -134,9 +134,28 @@ footer li{margin:4px 0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 #loading{padding:60px 0;color:var(--ink-2)}
 @media (prefers-reduced-motion:no-preference){.dot{transition:cx .25s ease,cy .25s ease}}
+
+/* shared project bar, the same on every one of these tools */
+.apnav { display: flex; flex-wrap: wrap; gap: 4px 4px; align-items: center; padding: 8px clamp(12px, 3vw, 28px); font: 13.5px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #1f1e1b; color: #ecebe6; }
+.apnav b { font-weight: 600; margin-right: 10px; }
+.apnav a { color: #ecebe6; text-decoration: none; padding: 5px 9px; border-radius: 6px; }
+.apnav a:hover { background: #3a3934; }
+.apnav a[aria-current=page] { background: #ecebe6; color: #1f1e1b; }
+.apnav .sp { flex: 1; }
+@media print { .apnav { display: none; } }
 </style>
 </head>
 <body>
+<nav class="apnav" aria-label="Projects by Amir Patel">
+  <b>Toronto data tools</b>
+  <a href="https://amirpatel32003.github.io/ttc-live/">Live buses and streetcars</a>
+  <a href="https://amirpatel32003.github.io/ttc-delay-pipeline/">Subway delays</a>
+  <a href="https://amirpatel32003.github.io/ttc-delay-pipeline/renters/">Rent and delays</a>
+  <a href="https://amirpatel32003.github.io/canada-cost-of-living/" aria-current="page">Cost of living</a>
+  <span class="sp"></span>
+  <a href="https://amirpatel32003.github.io/">Amir Patel's portfolio</a>
+</nav>
+
 <div class="wrap">
   <header class="top">
     <h1>Can I afford to live there?</h1>
