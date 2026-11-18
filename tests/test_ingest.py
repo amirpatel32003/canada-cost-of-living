@@ -78,3 +78,30 @@ def test_zip_with_two_data_files_is_rejected(dirs, tmp_path):
         zf.writestr("b.csv", "x\n1\n")
     with pytest.raises(ValueError):
         ingest_table(table_by_name("rent"), DirSource(bad), *dirs)
+
+
+class _Down:
+    def metadata(self, pid):
+        raise RuntimeError("503 from statcan")
+
+    def table_zip(self, pid):
+        raise RuntimeError("503 from statcan")
+
+
+def test_outage_keeps_the_last_load_instead_of_failing(dirs):
+    from pipeline.config import TABLES
+    from pipeline.ingest import ingest_all
+
+    bronze, manifest = dirs
+    ingest_all(DirSource(FIXTURES), bronze_dir=bronze, manifest_path=manifest)
+    results = ingest_all(_Down(), bronze_dir=bronze, manifest_path=manifest)
+    assert [r.action for r in results] == ["kept"] * len(TABLES)
+    assert all(r.rows > 0 for r in results)
+
+
+def test_outage_with_nothing_on_disk_still_fails(dirs):
+    from pipeline.ingest import ingest_all
+
+    bronze, manifest = dirs
+    with pytest.raises(RuntimeError):
+        ingest_all(_Down(), bronze_dir=bronze, manifest_path=manifest)

@@ -132,9 +132,24 @@ def ingest_table(
     return IngestResult(table.name, table.pid, "loaded", release, rows)
 
 
-def ingest_all(source: Source | None = None, force: bool = False, **kwargs) -> list[IngestResult]:
+def ingest_all(source: Source | None = None, force: bool = False, bronze_dir: Path = BRONZE_DIR, **kwargs) -> list[IngestResult]:
+    """Ingest every table. If Statistics Canada is unreachable for one table but we already hold its last
+    load, keep that load and say so, instead of failing the whole daily run. With nothing on disk to fall back
+    on, the error is raised."""
     source = source or default_source()
-    return [ingest_table(t, source, force=force, **kwargs) for t in TABLES]
+    results = []
+    for t in TABLES:
+        try:
+            results.append(ingest_table(t, source, force=force, bronze_dir=bronze_dir, **kwargs))
+        except Exception as exc:
+            have = (bronze_dir / f"{t.name}.parquet").exists() and (bronze_dir / f"{t.name}_members.parquet").exists()
+            if not have:
+                raise
+            manifest_path = kwargs.get("manifest_path", MANIFEST_PATH)
+            seen = load_manifest(manifest_path)["tables"].get(t.name, {})
+            print(f"WARNING: could not refresh {t.name} ({exc}). Keeping the copy from {seen.get('loaded_at', 'an earlier run')}.", flush=True)
+            results.append(IngestResult(t.name, t.pid, "kept", str(seen.get("release_time", "")), int(seen.get("rows", 0))))
+    return results
 
 
 def results_as_dicts(results: list[IngestResult]) -> list[dict]:

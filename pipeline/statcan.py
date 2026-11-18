@@ -29,7 +29,7 @@ class StatCanError(RuntimeError):
 class HttpSource:
     """Live Statistics Canada. Retries with backoff because the service rate limits and has short outages."""
 
-    def __init__(self, retries: int = 4, timeout: int = 120):
+    def __init__(self, retries: int = 6, timeout: int = 120):
         import requests
 
         self._session = requests.Session()
